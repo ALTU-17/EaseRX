@@ -1,0 +1,21 @@
+# dependencies
+node_modules/
+
+# build output
+client/dist/
+dist/
+
+# logs
+*.log
+*.log.err
+
+# local tooling / agent workspace
+.freebuff/
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# env files (base URL config JS mein hai; secrets kabhi commit na ho)
+.env
+.env.local
