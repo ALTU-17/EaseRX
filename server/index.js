@@ -12,23 +12,68 @@ const PORT = process.env.PORT || 4000;
 const ok = (res, data) => res.json({ success: true, data });
 const fail = (res, status, message) => res.status(status).json({ success: false, message });
 
-// ---------- auth ----------
+// ---------- auth (REAL SERVER CONTRACT — merged from mock-auth-server.js) ----------
+// In-memory stores: users[] + resetTokens[] (resets on restart, like all demo data)
+const users = [];
+const resetTokens = [];
+
+app.post('/api/auth/register', (req, res) => {
+  const { fullName, email, phoneNumber, password, role = 'Doctor', clinicName, registrationNo } = req.body || {};
+  if (!fullName || !email || !phoneNumber || !password) {
+    return fail(res, 400, 'fullName, email, phoneNumber and password are required.');
+  }
+  if (users.some((u) => u.email === email)) {
+    return fail(res, 409, 'An account with this email already exists.');
+  }
+  const userId = 'U' + (1000 + users.length + 1);
+  users.push({
+    userId,
+    fullName,
+    email,
+    phoneNumber,
+    role,
+    clinicName: clinicName || null,
+    registrationNo: registrationNo || null,
+    password,
+    createdAt: new Date().toISOString(),
+  });
+  ok(res, { userId, email, message: 'Registration successful.' });
+});
+
 app.post('/api/auth/login', (req, res) => {
-  const { email, password } = req.body || {};
-  if (!email || !password) return fail(res, 400, 'Email and password are required.');
+  const { emailOrPhone, password } = req.body || {};
+  if (!emailOrPhone || !password) return fail(res, 400, 'emailOrPhone and password are required.');
+  const user = users.find(
+    (u) => (u.email === emailOrPhone || u.phoneNumber === emailOrPhone) && u.password === password
+  );
+  if (!user) return fail(res, 401, 'Invalid email/phone or password.');
   ok(res, {
-    token: 'demo-token-' + Date.now(),
-    user: { name: `Dr. ${db.settings.firstName} ${db.settings.lastName}`, email, role: 'Professional', avatar: db.doctorAvatar },
+    token: 'jwt-mock-' + Date.now(),
+    user: { userId: user.userId, name: user.fullName, email: user.email, role: user.role },
   });
 });
 
-app.post('/api/auth/signup', (req, res) => {
-  const { name, email, password } = req.body || {};
-  if (!name || !email || !password) return fail(res, 400, 'Name, email and password are required.');
-  ok(res, {
-    token: 'demo-token-' + Date.now(),
-    user: { name, email, role: 'Professional', avatar: db.doctorAvatar },
-  });
+app.post('/api/auth/forgot-password', (req, res) => {
+  const { email, client } = req.body || {};
+  if (!email) return fail(res, 400, 'Email is required.');
+  const user = users.find((u) => u.email === email);
+  const token = 'RESET-' + Math.random().toString(36).slice(2, 8).toUpperCase();
+  if (user) resetTokens.push({ userId: user.userId, token, expiresAt: Date.now() + 15 * 60 * 1000 });
+  ok(res, { message: 'Reset instructions sent.', client: client || null, devToken: token });
+});
+
+app.post('/api/auth/reset-password', (req, res) => {
+  const { userId, token, newPassword } = req.body || {};
+  if (!userId || !token || !newPassword) return fail(res, 400, 'userId, token and newPassword are required.');
+  const entry = resetTokens.find(
+    (t) => t.userId === userId && t.token === token && t.expiresAt > Date.now()
+  );
+  if (!entry) return fail(res, 400, 'Invalid or expired reset token.');
+  const user = users.find((u) => u.userId === userId);
+  if (!user) return fail(res, 404, 'User not found.');
+  user.password = newPassword;
+  resetTokens.splice(resetTokens.indexOf(entry), 1);
+  ok(res, { message: 'Password updated successfully.' });
 });
 
 // ---------- dashboard ----------
@@ -130,6 +175,10 @@ app.get('/api/appointments/complaints', (req, res) => {
   ok(res, db.chiefComplaints);
 });
 
+app.get('/api/appointments', (req, res) => {
+  ok(res, db.getUpcomingAppointments(1000)); // full list, soonest first
+});
+
 app.post('/api/appointments/book', (req, res) => {
   const { slotId, name, phone, gender, address, complaint } = req.body || {};
   if (!slotId) return fail(res, 400, 'Please select a time slot.');
@@ -140,6 +189,9 @@ app.post('/api/appointments/book', (req, res) => {
 });
 
 app.get('/api/health', (req, res) => ok(res, { status: 'EaseRX API is running' }));
+
+// ---------- catch-all: unknown /api routes ----------
+app.use('/api', (req, res) => fail(res, 404, 'Unknown API endpoint.'));
 
 app.listen(PORT, () => {
   console.log(`EaseRX API listening on http://localhost:${PORT}`);

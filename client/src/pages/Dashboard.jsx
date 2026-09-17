@@ -20,6 +20,7 @@ function formatApptDay(dateStr) {
 export default function Dashboard() {
   const [data, setData] = useState(null);
   const [error, setError] = useState('');
+  const [showAllAppts, setShowAllAppts] = useState(false);
 
   useEffect(() => {
     api.getDashboard().then(setData).catch((e) => setError(e.message));
@@ -114,16 +115,16 @@ export default function Dashboard() {
             <div className="p-4 border-b border-surface-variant flex justify-between items-center">
               <div>
                 <h3 className="text-title-lg font-bold text-on-background">Upcoming Patients</h3>
-                <p className="text-xs text-on-surface-variant mt-0.5">Next appointments from your booking page</p>
+                <p className="text-xs text-on-surface-variant mt-0.5">{showAllAppts ? `Showing all ${upcomingAppointments?.length || 0} appointments — click icon to collapse` : 'Next appointments from your booking page'}</p>
               </div>
-              <span className="material-symbols-outlined text-primary">event_upcoming</span>
+              <button onClick={() => setShowAllAppts((s) => !s)} title="View full upcoming list" className="w-10 h-10 rounded-full bg-surface-container-high hover:bg-primary-fixed flex items-center justify-center transition-colors"><span className="material-symbols-outlined text-primary">event_upcoming</span></button>
             </div>
 
             {(!upcomingAppointments || upcomingAppointments.length === 0) ? (
               <p className="p-6 text-sm text-on-surface-variant text-center">No upcoming appointments yet.</p>
             ) : (
               <ul className="divide-y divide-surface-variant">
-                {upcomingAppointments.map((a) => (
+                {(showAllAppts ? upcomingAppointments : (upcomingAppointments || []).slice(0, 3)).map((a) => (
                   <li key={a.id} className="p-4 flex items-center gap-4">
                     <div className="flex flex-col items-center justify-center bg-primary-fixed text-primary rounded-lg w-16 h-14 flex-shrink-0">
                       <span className="text-[10px] font-bold leading-none">{formatApptDay(a.date)}</span>

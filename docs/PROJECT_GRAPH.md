@@ -24,18 +24,20 @@
 └──────────┬───────────────────────────────────┬──────────────────────┘
            │ (dummy base)                      │ (real base or proxy)
            ▼                                   ▼
-┌────────────────────────────┐    ┌─────────────────────────────────────┐
-│ MOCK AUTH (port 4001)      │    │ EXPRESS API (port 4000)             │
-│ server/mock-auth-server.js │    │ server/index.js — routes+validation │
-│ register/login/forgot/reset│    │   │                                 │
-│ (exact server contract)    │    │   ▼                                 │
-└────────────────────────────┘    │ server/data.js — IN-MEMORY STORE    │
-                                  └─────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────┐
+│ EXPRESS API (port 4000) — server/index.js                           │
+│ ├── auth: register/login/forgot/reset (REAL contract, merged)       │
+│ │     stores: users[] + resetTokens[] (in-memory)                   │
+│ └── demo: dashboard/patients/rx/bills/settings/plans/booking        │
+│       store: server/data.js (in-memory)                             │
+└─────────────────────────────────────────────────────────────────────┘
+
+> mock-auth-server.js = LEGACY (kept for reference only, do not run).
 ```
 
-> **Dummy base URL mode (current):** auth → mock server (4001). Demo features
-> (dashboard/patients/rx/bills/settings/plans/booking) still need the main
-> server on port 4000, otherwise they 501 through the mock.
+> **Dummy base URL mode (current):** ek hi backend (port 4000) — auth (real
+> contract, merged) + demo features dono. `mock-auth-server.js` ab legacy hai;
+> use start karne ki zaroorat nahi.
 
 ## 2. Route Graph (client)
 
@@ -157,7 +159,7 @@ Loader.jsx ──────────── full-screen splash — currently
 ## 5. Data Mutation Map (who writes what)
 
 ```
-server/data.js  = ONLY mutable state
+server/data.js  = ONLY mutable state (main demo API, port 4000)
 ├── patients            ◀── POST /api/patients
 ├── prescriptions       ◀── POST /api/prescriptions
 ├── bills               ◀── POST /api/bills
@@ -166,9 +168,30 @@ server/data.js  = ONLY mutable state
 ├── appointmentSlots[].status   ◀── bookSlot()
 ├── bookedAppointments  ◀── bookSlot() (also seeded with APT-1001/1002)
 └── stats               ◀── prescriptions/receipts/todaysAppointments increments
+
+server/index.js merged auth stores (resets on restart, like all demo data)
+├── users[]             ◀── POST /api/auth/register
+└── resetTokens[]       ◀── POST /api/auth/forgot-password (consumed by reset)
+
+⚠ GAP: jab backend na ho (Vercel prod), demo screens ka koi data source
+  nahi — dashboard/patients/etc. fail hote hain.
+  Planned fix: client-side demoData.js fallback in api.js.
 ```
 
-## 6. Key Locations Cheat-Sheet
+## 6. Deployment Map
+
+```
+GitHub: github.com/ALTU-17/EaseRX (branch main)
+   │
+   └── Vercel (frontend-only hosting)
+         ├── vercel.json (root) → build: cd client && npm install && npm run build
+         │                       output: client/dist + SPA rewrites
+         └── Backend NOT hosted → demo/auth endpoints unreachable in prod
+               └── future options: Vercel serverless fns OR Render/Railway API
+                   (then change client/src/config.js API_BASE_URL)
+```
+
+## 7. Key Locations Cheat-Sheet
 
 | What you want to change | Go to |
 |---|---|

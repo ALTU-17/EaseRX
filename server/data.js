@@ -247,7 +247,7 @@ function getDashboard() {
     revenueTrend,
     recentActivity,
     newPatients: patients.slice(0, 2),
-    upcomingAppointments: getUpcomingAppointments(3),
+    upcomingAppointments: getUpcomingAppointments(20),
   };
 }
 
@@ -264,6 +264,7 @@ module.exports = {
   get currentPlan() { return currentPlan; },
   set currentPlan(v) { currentPlan = v; },
   getDashboard,
+  getUpcomingAppointments,
   appointmentSlots,
   chiefComplaints,
   bookedAppointments,

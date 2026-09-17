@@ -18,7 +18,7 @@ billing, plans). Two-part app:
 
 | Feature / Command | Client page | Key files | API endpoints | Data source (`server/data.js`) |
 |---|---|---|---|---|
-| Login / Register / Forgot / Reset password (**real server contract**) | `/login` | `client/src/pages/Auth.jsx` (4 views), `App.jsx` | `POST /api/auth/register`, `POST /api/auth/login` (`emailOrPhone`), `POST /api/auth/forgot-password` (`client:'easeRX'`), `POST /api/auth/reset-password` | mock: `server/mock-auth-server.js` (port 4001) |
+| Login / Register / Forgot / Reset password (**real server contract**) | `/login` | `client/src/pages/Auth.jsx` (4 views), `App.jsx` | `POST /api/auth/register`, `POST /api/auth/login` (`emailOrPhone`), `POST /api/auth/forgot-password` (`client:'easeRX'`), `POST /api/auth/reset-password` | main API server (`server/index.js` — **auth merged in**, port 4000) |
 | Dashboard & analytics (stat cards, revenue chart, activity, new patients, upcoming appointments) | `/dashboard` | `client/src/pages/Dashboard.jsx`, `components/StatCard.jsx` | `GET /api/dashboard` | `getDashboard()`, `stats`, `revenueTrend`, `recentActivity`, `getUpcomingAppointments()` |
 | Patients (search, add modal) | `/patients` | `client/src/pages/Patients.jsx` | `GET /api/patients?q=`, `POST /api/patients` | `patients` |
 | New Prescription (patient info, vitals, medicine line items, save draft/final) — **also auto-creates a matching bill** | `/rx` | `client/src/pages/Rx.jsx` | `GET/POST /api/prescriptions`, `POST /api/bills` | `prescriptions`, increments `stats.draftPrescriptions` |
@@ -43,10 +43,10 @@ All responses use the envelope `{ success: true, data }` or `{ success: false, m
 
 | Method | Path | Purpose | Mutates |
 |---|---|---|---|
-| POST | `/api/auth/register` | real contract: `{ fullName, clinicName?, registrationNo?, phoneNumber, email, password, role }` → userId | mock `users[]` |
-| POST | `/api/auth/login` | real contract: `{ emailOrPhone, password }` → `{ token, user }` | mock `users[]` |
-| POST | `/api/auth/forgot-password` | real contract: `{ email, client: 'easeRX' }` → reset code (mock also returns `devToken`) | mock `resetTokens[]` |
-| POST | `/api/auth/reset-password` | real contract: `{ userId, token, newPassword }` | mock `user.password` |
+| POST | `/api/auth/register` | real contract: `{ fullName, clinicName?, registrationNo?, phoneNumber, email, password, role }` → userId | `users[]` (merged auth store) |
+| POST | `/api/auth/login` | real contract: `{ emailOrPhone, password }` → `{ token, user }` | `users[]` (merged auth store) |
+| POST | `/api/auth/forgot-password` | real contract: `{ email, client: 'easeRX' }` → reset code (mock also returns `devToken`) | `resetTokens[]` (merged auth store) |
+| POST | `/api/auth/reset-password` | real contract: `{ userId, token, newPassword }` | `user.password` (merged auth store) |
 | GET | `/api/dashboard` | stats + revenueTrend + activity + newPatients + upcomingAppointments | — |
 | GET | `/api/patients?q=` | search by name (case-insensitive) | — |
 | POST | `/api/patients` | create patient (name required) → id `P1001…` | `patients.unshift` |
@@ -76,7 +76,7 @@ All responses use the envelope `{ success: true, data }` or `{ success: false, m
 ## 5. Routing & Auth Flow (client)
 
 - `client/src/App.jsx`: reads `localStorage.easerx_user` on mount → `user` state.
-- **Auth = real server contract** via `api.js` (register/login/forgot/reset); login accepts email OR phone. Dummy base URL (`https://mock.easerx.local`) in `client/src/config.js` routes to `server/mock-auth-server.js` on port 4001; real server aaye toh sirf `API_BASE_URL` badalna.
+- **Auth = real server contract** via `api.js` (register/login/forgot/reset); login accepts email OR phone. Auth endpoints live in the single main backend (`server/index.js`, port 4000 — merged from the old mock-auth-server). Dummy base URL (`https://mock.easerx.local`) in `client/src/config.js` resolves to `http://localhost:4000/api`; real server aaye toh sirf `API_BASE_URL` badalna.
 - **Public routes:** `/` (Home), `/book` (patient booking), `/login` (bounces to `/dashboard` if logged in).
 - **Auth-guarded** via inline `RequireAuth` wrapper → `Layout` (Sidebar + header + BottomNav + `<Outlet/>`): `/dashboard`, `/patients`, `/rx`, `/bill`, `/settings`, `/plans`.
 - Storage keys: `easerx_user`, `easerx_token` (`handleAuth` writes, `handleLogout` removes).

@@ -46,6 +46,7 @@ export const api = {
   updateSettings: (settings) => request('/settings', { method: 'PUT', body: JSON.stringify(settings) }),
   getPlans: () => request('/plans'),
   upgradePlan: (planId) => request('/plans/upgrade', { method: 'POST', body: JSON.stringify({ planId }) }),
+  getAppointments: () => request('/appointments'),
   getSlots: () => request('/appointments/slots'),
   getComplaints: () => request('/appointments/complaints'),
   bookAppointment: (payload) =>
