@@ -191,6 +191,12 @@ server/index.js merged auth stores (resets on restart, like all demo data)
 ✅ RESOLVED: client-side `demoData.js` fallback in api.js — jab backend na ho
   (Vercel prod, USE_DEMO=true), demo screens browser se serve hote hain.
   Real API jaane par wahi screens `/api/rx/*` adapters se data lete hain.
+
+server/rx.js = real-contract MIRROR mounted at /api/rx (port 4000, same store)
+├── /rx/patients, /rx/medicines, /rx/prescriptions, /rx/invoices
+├── /rx/dashboard, /rx/appointments (+booking-info), /rx/public/booking
+├── /rx/settings (+profile/pdf/submit-verification), /rx/plans
+└── medicines[]        ◀── POST /api/rx/medicines
 ```
 
 ## 6. Deployment Map
@@ -220,3 +226,28 @@ GitHub: github.com/ALTU-17/EaseRX (branch main)
 | Prescription print layout | `Settings.jsx` (live preview) |
 | QR / share link | `ShareBookingLink.jsx` |
 | Auth guard | `App.jsx` → `RequireAuth` |
+| API mode switch (demo ⇄ real) | `client/src/config.js` |
+| DTO ↔ UI mappers, Bearer auth, all endpoints | `client/src/api.js` |
+| Local real-contract mirror | `server/rx.js` |
+| Client-side slot + complaint catalog | `client/src/bookingSlots.js` |
+| Backend handoff doc (endpoints + DTOs + gaps) | `docs/BACKEND_HANDOFF.md` |
+
+---
+
+## 8. Change Log (dated)
+
+### 2026-09-20 — Real `/api/rx/*` integration
+
+**Goal:** wire the frontend to the backend dev's new API handoff **without changing any screen's data shape**.
+
+- **Adapter layer** (`client/src/api.js`) — DTO↔UI mappers (`mapPatient`, `mapPrescription`, `mapInvoice`, `mapDashboard`, `mapAppointment`, `mapSettings`, `mapPlan`, `mapMedicine` + reverse `to*Dto`s), Bearer-token auth on every request, and all `/api/rx/*` endpoints. `forgot-password` now sends `client: "RxMaker"`.
+- **Config** (`client/src/config.js`) — documented 3 modes: **DEMO** (default, static), **MIRROR** (`http://localhost:4000/api`), **REAL** (`https://localhost:7161/api`); added `REAL_BASE_URL`, `MIRROR_BASE_URL`, `CLIENT_ID`.
+- **New screen** — `client/src/pages/Medicines.jsx` (`/medicines`): catalog CRUD, plus a medicine picker inside `Rx.jsx`.
+- **Screens rewired** — Patients; PatientDetail (+delete); Rx (+doctor advice, generate-bill-from-prescription); Prescriptions (+delete, advice); BillDetail (+partial payment, delete); Appointments (+doctor-side create, cancel endpoint); Settings (profile / submit-verification / pdf / reset split into 4 calls); Plans; Dashboard (mapped `{value, percentChange}` response); BookAppointment (reworked to `clinicId` + client-side slots → `startAt`).
+- **ShareBookingLink** — now reads `GET /api/rx/appointments/booking-info`.
+- **New helper** — `client/src/bookingSlots.js`: shared slot times + chief-complaint catalog (the real API has no slots endpoint).
+- **Demo parity** — `client/src/demoData.js` gained `medicines`, create-appointment, deletes and booking-info so DEMO stays fully usable.
+- **Local mirror** — `server/rx.js` implements the real `/api/rx/*` contract (real DTO field names) over the in-memory store; mounted in `server/index.js`; `server/data.js` gained `medicines`.
+- **Docs** — this graph + `context.md` updated; `docs/BACKEND_HANDOFF.md` added for the backend dev.
+- **Verification** — `node --check` on server files; ~30 mirror endpoints curled; `npm run build` clean; live click-through of the client against the mirror (dashboard, medicines create, appointments, prescriptions, bill, settings, plans, patient detail, public booking).
+- **Git** — integration landed as one atomic commit **`4ae2b66`** on `main`, with recovery tag **`backup-before-rx-integration` → `842a4ed`** (both pushed). Revert with `git revert 4ae2b66` or `git reset --hard backup-before-rx-integration`.
