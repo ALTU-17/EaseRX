@@ -190,6 +190,10 @@ app.post('/api/appointments/book', (req, res) => {
 
 app.get('/api/health', (req, res) => ok(res, { status: 'EaseRX API is running' }));
 
+// ---------- real-contract mirror: /api/rx/* (patients, medicines, prescriptions, invoices,
+// dashboard, appointments, public booking, settings, plans). Backed by the same in-memory store.
+app.use('/api/rx', require('./rx'));
+
 // ---------- catch-all: unknown /api routes ----------
 app.use('/api', (req, res) => fail(res, 404, 'Unknown API endpoint.'));
 

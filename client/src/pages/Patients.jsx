@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { api } from '../api.js';
 
 export default function Patients() {
+  const navigate = useNavigate();
   const [patients, setPatients] = useState([]);
   const [query, setQuery] = useState('');
   const [showForm, setShowForm] = useState(false);
@@ -96,7 +98,7 @@ export default function Patients() {
                 <td className="px-5 py-3 hidden sm:table-cell text-on-surface-variant">{p.dob}</td>
                 <td className="px-5 py-3 hidden md:table-cell text-on-surface-variant">{p.phone}</td>
                 <td className="px-5 py-3 text-on-surface-variant">{p.gender}</td>
-                <td className="px-5 py-3 text-right">
+                <td className="px-5 py-3 text-right cursor-pointer hover:opacity-70" onClick={() => navigate(`/patients/${p.id}`)} title="View patient profile">
                   <span className="material-symbols-outlined text-primary">chevron_right</span>
                 </td>
               </tr>

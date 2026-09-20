@@ -24,7 +24,7 @@ function Field({ icon, type = 'text', placeholder, value, onChange, required = t
   );
 }
 
-export default function Auth({ onAuth }) {
+export default function Auth({ onAuth, onDemoLogin }) {
   // signin | register | forgot | reset
   const [view, setView] = useState('signin');
   const [showPassword, setShowPassword] = useState(false);
@@ -291,6 +291,17 @@ export default function Auth({ onAuth }) {
           >
             {loading ? 'Please wait…' : buttonLabels[view]}
           </button>
+
+          {onDemoLogin && (
+            <button
+              type="button"
+              onClick={onDemoLogin}
+              className="w-full border border-outline-variant text-on-background font-bold rounded-lg py-3 hover:bg-surface-container transition-colors inline-flex items-center justify-center gap-2"
+            >
+              <span className="material-symbols-outlined text-[20px]">play_circle</span>
+              Explore Demo (No Login)
+            </button>
+          )}
 
           <p className="text-xs text-center text-on-surface-variant">
             {USE_MOCK ? 'Mock mode — dummy base URL' : `API: ${API_BASE_URL}`}

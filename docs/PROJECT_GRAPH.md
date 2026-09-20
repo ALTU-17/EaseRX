@@ -35,9 +35,13 @@
 > mock-auth-server.js = LEGACY (kept for reference only, do not run).
 ```
 
-> **Dummy base URL mode (current):** ek hi backend (port 4000) — auth (real
-> contract, merged) + demo features dono. `mock-auth-server.js` ab legacy hai;
-> use start karne ki zaroorat nahi.
+> **Modes (client/src/config.js):** `USE_DEMO=true` (default) → static client-side
+> demo, koi backend nahi. `USE_DEMO=false` + `API_BASE_URL=MIRROR_BASE_URL` → local
+> Express `:4000`, ab real `/api/rx/*` contract mirror bhi serve karta hai
+> (`server/rx.js`). `USE_DEMO=false` + `API_BASE_URL=REAL_BASE_URL` → actual .NET
+> server (`https://localhost:7161/api`). `client/src/api.js` adapters UI models ↔ DTOs
+> map karte hain, aur har request `Authorization: Bearer <token>` bhejti hai.
+> `mock-auth-server.js` = LEGACY (do not run).
 
 ## 2. Route Graph (client)
 
@@ -52,9 +56,14 @@ App.jsx
 ├── RequireAuth wrapper ──┬── Layout.jsx (Sidebar + header + BottomNav + <Outlet/>)
 │                         │
 │   ├── /dashboard ───────┼── Dashboard.jsx
+│   ├── /appointments ────┼── Appointments.jsx      (+ doctor-side create modal)
 │   ├── /patients ────────┼── Patients.jsx
-│   ├── /rx ──────────────┼── Rx.jsx
+│   ├── /patients/:id ────┼── PatientDetail.jsx     (edit + delete)
+│   ├── /medicines ───────┼── Medicines.jsx         (catalog CRUD)
+│   ├── /prescriptions ───┼── Prescriptions.jsx     (drafts/final, finalize, delete)
+│   ├── /rx ──────────────┼── Rx.jsx                (+ medicine catalog picker, advice)
 │   ├── /bill ────────────┼── Bill.jsx
+│   ├── /bill/:id ────────┼── BillDetail.jsx        (pay / partial / delete)
 │   ├── /settings ────────┼── Settings.jsx
 │   └── /plans ───────────┼── Plans.jsx
 │
@@ -145,13 +154,19 @@ App.jsx
 │   ├── BottomNav.jsx    (ITEMS — 5 items, md:hidden)
 │   └── Outlet → pages/* (title/subtitle from TITLES map)
 ├── pages/*
-│   ├── Dashboard.jsx ──── StatCard.jsx
+│   ├── Dashboard.jsx ──── StatCard.jsx, ShareBookingLink.jsx (booking-info API)
+│   ├── Appointments.jsx
 │   ├── Patients.jsx
-│   ├── Rx.jsx
+│   ├── PatientDetail.jsx
+│   ├── Medicines.jsx
+│   ├── Prescriptions.jsx
+│   ├── Rx.jsx ─────────── medicine catalog picker
 │   ├── Bill.jsx
+│   ├── BillDetail.jsx
 │   ├── Settings.jsx
 │   └── Plans.jsx
-└── (all data via) api.js ──▶ /api/*
+└── (all data via) api.js ──▶ DEMO (demoData.js) | MIRROR/REAL (/api/rx/*)
+    └── bookingSlots.js ── client-side slot + complaint catalog
 ShareBookingLink.jsx ── used by Dashboard.jsx only (booking link + QR card)
 Loader.jsx ──────────── full-screen splash — currently NOT imported anywhere (unused)
 ```
@@ -173,9 +188,9 @@ server/index.js merged auth stores (resets on restart, like all demo data)
 ├── users[]             ◀── POST /api/auth/register
 └── resetTokens[]       ◀── POST /api/auth/forgot-password (consumed by reset)
 
-⚠ GAP: jab backend na ho (Vercel prod), demo screens ka koi data source
-  nahi — dashboard/patients/etc. fail hote hain.
-  Planned fix: client-side demoData.js fallback in api.js.
+✅ RESOLVED: client-side `demoData.js` fallback in api.js — jab backend na ho
+  (Vercel prod, USE_DEMO=true), demo screens browser se serve hote hain.
+  Real API jaane par wahi screens `/api/rx/*` adapters se data lete hain.
 ```
 
 ## 6. Deployment Map

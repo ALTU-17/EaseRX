@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../api.js';
 import StatCard from '../components/StatCard.jsx';
 import ShareBookingLink from '../components/ShareBookingLink.jsx';
@@ -18,6 +19,7 @@ function formatApptDay(dateStr) {
 }
 
 export default function Dashboard() {
+  const navigate = useNavigate();
   const [data, setData] = useState(null);
   const [error, setError] = useState('');
   const [showAllAppts, setShowAllAppts] = useState(false);
@@ -91,7 +93,7 @@ export default function Dashboard() {
 
         <div className="lg:col-span-2 space-y-6">
           <div className="grid grid-cols-2 gap-4">
-            <div className="bg-surface-container-lowest rounded-xl shadow-card border border-surface-variant p-5">
+            <div className="bg-surface-container-lowest rounded-xl shadow-card border border-surface-variant p-5 cursor-pointer hover:border-secondary transition-colors" onClick={() => navigate('/prescriptions')}>
               <div className="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center mb-3">
                 <span className="material-symbols-outlined text-primary">description</span>
               </div>
@@ -99,7 +101,7 @@ export default function Dashboard() {
               <p className="text-3xl font-bold text-primary mt-2">{stats.draftPrescriptions}</p>
               <p className="text-xs text-on-surface-variant mt-1">Awaiting your approval</p>
             </div>
-            <div className="bg-surface-container-lowest rounded-xl shadow-card border border-surface-variant p-5">
+            <div className="bg-surface-container-lowest rounded-xl shadow-card border border-surface-variant p-5 cursor-pointer hover:border-secondary transition-colors" onClick={() => navigate('/appointments')}>
               <div className="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center mb-3">
                 <span className="material-symbols-outlined text-primary">event</span>
               </div>

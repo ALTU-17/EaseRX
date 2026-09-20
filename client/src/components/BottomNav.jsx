@@ -3,9 +3,9 @@ import { NavLink } from 'react-router-dom';
 
 const ITEMS = [
   { to: '/dashboard', label: 'Home', icon: 'home' },
+  { to: '/appointments', label: 'Appts', icon: 'calendar_month' },
   { to: '/rx', label: 'Rx', icon: 'clinical_notes' },
   { to: '/bill', label: 'Bill', icon: 'receipt_long' },
-  { to: '/settings', label: 'Settings', icon: 'settings' },
   { to: '/plans', label: 'Plans', icon: 'star' },
 ];
 

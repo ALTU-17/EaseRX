@@ -1,12 +1,19 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { api } from '../api.js';
 
 export default function ShareBookingLink() {
   const [copied, setCopied] = useState(false);
   const [showQr, setShowQr] = useState(false);
   const [downloading, setDownloading] = useState(false);
   const [downloadError, setDownloadError] = useState('');
+  const [booking, setBooking] = useState(null);
 
-  const bookingUrl = `${window.location.origin}/book`;
+  useEffect(() => {
+    api.getBookingInfo().then(setBooking).catch(() => {});
+  }, []);
+
+  // Prefer the server's real clinic booking link; fall back to the local /book route.
+  const bookingUrl = booking?.bookingLink || `${window.location.origin}/book`;
   const qrSrc = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&margin=10&data=${encodeURIComponent(bookingUrl)}`;
 
   const copyLink = async () => {

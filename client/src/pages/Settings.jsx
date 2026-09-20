@@ -17,14 +17,36 @@ export default function Settings() {
 
   const submitVerification = async (e) => {
     e.preventDefault();
-    await api.updateSettings({ verified: true });
-    setSettings({ ...settings, verified: true });
+    setError('');
+    try {
+      await api.saveProfile(settings);
+      const res = await api.submitVerification();
+      setSettings(res && res.firstName !== undefined ? res : { ...settings, verified: true });
+    } catch (err) {
+      setError(err.message);
+    }
   };
 
   const saveConfig = async () => {
-    await api.updateSettings({ pdf: settings.pdf });
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+    setError('');
+    try {
+      const res = await api.savePdfSettings(settings);
+      if (res && res.clinic) setSettings(res);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const resetDefaults = async () => {
+    setError('');
+    try {
+      const res = await api.resetPdfSettings();
+      setSettings((s) => (res && res.pdf ? { ...s, pdf: res.pdf } : { ...s, pdf: { ...s.pdf, marginTop: 15, marginBottom: 15, marginLeft: 20, marginRight: 20, scale: 100 } }));
+    } catch (err) {
+      setError(err.message);
+    }
   };
 
   return (
@@ -151,7 +173,7 @@ export default function Settings() {
           <div className="flex justify-between items-center pt-2 border-t border-surface-variant">
             <button
               type="button"
-              onClick={() => setSettings({ ...settings, pdf: { ...settings.pdf, marginTop: 15, marginBottom: 15, marginLeft: 20, marginRight: 20, scale: 100 } })}
+              onClick={resetDefaults}
               className="text-sm font-medium text-on-surface-variant hover:underline"
             >
               Reset Defaults

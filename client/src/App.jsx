@@ -6,10 +6,15 @@ import Auth from './pages/Auth.jsx';
 import Layout from './components/Layout.jsx';
 import Dashboard from './pages/Dashboard.jsx';
 import Patients from './pages/Patients.jsx';
+import PatientDetail from './pages/PatientDetail.jsx';
+import Medicines from './pages/Medicines.jsx';
 import Rx from './pages/Rx.jsx';
+import Prescriptions from './pages/Prescriptions.jsx';
 import Bill from './pages/Bill.jsx';
+import BillDetail from './pages/BillDetail.jsx';
 import Settings from './pages/Settings.jsx';
 import Plans from './pages/Plans.jsx';
+import Appointments from './pages/Appointments.jsx';
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -25,6 +30,14 @@ export default function App() {
     localStorage.setItem('easerx_token', token);
     localStorage.setItem('easerx_user', JSON.stringify(userData));
     setUser(userData);
+  };
+
+  // Static demo entry — no backend, no credentials (USE_DEMO mode).
+  const handleDemoLogin = () => {
+    handleAuth(
+      { name: 'Dr. Altamash Shaikh', email: 'demo@easerx.local', role: 'Professional' },
+      'demo-token'
+    );
   };
 
   const handleLogout = () => {
@@ -48,19 +61,31 @@ export default function App() {
 
       {/* Public patient self-booking page — shared via link or QR code, no login needed */}
       <Route path="/book" element={<BookAppointment />} />
+      <Route path="/book/:clinicId" element={<BookAppointment />} />
 
       {/* Auth screen — if already logged in, bounce straight to the dashboard */}
       <Route
         path="/login"
-        element={user ? <Navigate to="/dashboard" replace /> : <Auth onAuth={handleAuth} />}
+        element={
+          user ? (
+            <Navigate to="/dashboard" replace />
+          ) : (
+            <Auth onAuth={handleAuth} onDemoLogin={handleDemoLogin} />
+          )
+        }
       />
 
       {/* Everything below requires a logged-in user */}
       <Route element={<RequireAuth />}>
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/patients" element={<Patients />} />
+        <Route path="/patients/:id" element={<PatientDetail />} />
+        <Route path="/medicines" element={<Medicines />} />
+        <Route path="/appointments" element={<Appointments />} />
+        <Route path="/prescriptions" element={<Prescriptions />} />
         <Route path="/rx" element={<Rx />} />
         <Route path="/bill" element={<Bill />} />
+        <Route path="/bill/:id" element={<BillDetail />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/plans" element={<Plans />} />
       </Route>

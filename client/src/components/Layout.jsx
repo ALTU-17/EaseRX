@@ -6,7 +6,10 @@ import { api } from '../api.js';
 
 const TITLES = {
   '/dashboard': ['Dashboard & Analytics', "Welcome back — here's what's happening today."],
+  '/appointments': ['Appointments', 'Confirm, complete, reschedule or cancel patient visits.'],
   '/patients': ['Patients', 'Search, add, and manage your patient records.'],
+  '/medicines': ['Medicines', 'Build and maintain your medicine catalog.'],
+  '/prescriptions': ['Prescriptions', 'Review drafts, approve final prescriptions, and print.'],
   '/rx': ['New Prescription & Bill', 'Create a prescription and generate the matching bill.'],
   '/bill': ['Billing', 'Invoices generated from your prescriptions.'],
   '/settings': ['Settings', 'Verify your credentials and configure your prescription PDF.'],

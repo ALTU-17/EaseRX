@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../api.js';
 
@@ -32,10 +32,16 @@ export default function Rx() {
   const navigate = useNavigate();
   const [patient, setPatient] = useState({ name: '', phone: '', age: '', gender: '', consultationDate: new Date().toISOString().slice(0, 10) });
   const [vitals, setVitals] = useState({ bp: '', temp: '', complaint: '' });
+  const [advice, setAdvice] = useState('');
+  const [catalog, setCatalog] = useState([]);
   const [medicines, setMedicines] = useState([{ ...emptyMed }]);
   const [saved, setSaved] = useState(null);
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    api.getMedicines().then(setCatalog).catch(() => {});
+  }, []);
 
   const updateMed = (i, key, value) =>
     setMedicines((meds) => meds.map((m, idx) => (idx === i ? { ...m, [key]: value } : m)));
@@ -51,15 +57,14 @@ export default function Rx() {
     }
     setSaving(true);
     try {
-      const rx = await api.addPrescription({ patient, vitals, medicines, status });
+      const rx = await api.addPrescription({ patient, vitals, medicines, status, advice, consultationDate: patient.consultationDate });
       setSaved(rx);
       if (status === 'final') {
-        await api.addBill({
-          patientName: patient.name,
-          items: [
-            { label: 'Consultation', amount: 500 },
-            ...medicines.filter((m) => m.name).map((m) => ({ label: m.name, amount: 200 })),
-          ],
+        await api.generateBillFromPrescription(rx.id, {
+          consultationFee: 500,
+          extraItems: medicines
+            .filter((m) => m.name)
+            .map((m) => ({ description: m.name, amount: 200, quantity: 1 })),
         });
       }
     } catch (err) {
@@ -90,6 +95,7 @@ export default function Rx() {
               setSaved(null);
               setPatient({ name: '', phone: '', age: '', gender: '', consultationDate: new Date().toISOString().slice(0, 10) });
               setVitals({ bp: '', temp: '', complaint: '' });
+              setAdvice('');
               setMedicines([{ ...emptyMed }]);
             }}
             className="text-sm font-bold bg-primary text-on-primary rounded-lg px-4 py-2.5 hover:opacity-90"
@@ -176,11 +182,52 @@ export default function Rx() {
             Chief Complaint
             <input value={vitals.complaint} onChange={(e) => setVitals({ ...vitals, complaint: e.target.value })} placeholder="Fever, cough…" className="mt-1 w-full bg-surface-container-low border border-surface-variant rounded-lg px-3 py-2.5 text-sm outline-none focus:border-secondary" />
           </label>
+          <label className="text-label-md text-on-surface-variant sm:col-span-3">
+            Doctor&apos;s Advice (optional)
+            <textarea
+              rows={2}
+              value={advice}
+              onChange={(e) => setAdvice(e.target.value)}
+              placeholder="Rest and fluids, salt-water gargle…"
+              className="mt-1 w-full bg-surface-container-low border border-surface-variant rounded-lg px-3 py-2.5 text-sm outline-none focus:border-secondary"
+            />
+          </label>
         </div>
       </Section>
 
       <Section icon="medication" title="Medicines">
         <div className="space-y-4">
+          {catalog.length > 0 && (
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+              <select
+                value=""
+                onChange={(e) => {
+                  const med = catalog.find((c) => c.id === e.target.value);
+                  if (!med) return;
+                  setMedicines((meds) => {
+                    const line = {
+                      name: med.name,
+                      sig: med.defaultSig || '',
+                      dispense: med.defaultDispenseQty ?? '',
+                      refills: med.defaultRefills ?? 0,
+                      medicineId: med.id,
+                    };
+                    const first = meds[0];
+                    return first && !first.name ? [line, ...meds.slice(1)] : [...meds, line];
+                  });
+                }}
+                className="w-full sm:w-72 bg-surface-container-low border border-surface-variant rounded-lg px-3 py-2.5 text-sm outline-none focus:border-secondary"
+              >
+                <option value="">Add from medicine catalog…</option>
+                {catalog.map((c) => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
+              </select>
+              <button type="button" onClick={() => navigate('/medicines')} className="text-sm font-bold text-secondary hover:underline">
+                Manage catalog
+              </button>
+            </div>
+          )}
           {medicines.map((m, i) => (
             <div key={i} className="border border-surface-variant rounded-lg p-4 space-y-3 relative">
               {medicines.length > 1 && (

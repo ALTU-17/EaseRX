@@ -20,7 +20,12 @@ billing, plans). Two-part app:
 |---|---|---|---|---|
 | Login / Register / Forgot / Reset password (**real server contract**) | `/login` | `client/src/pages/Auth.jsx` (4 views), `App.jsx` | `POST /api/auth/register`, `POST /api/auth/login` (`emailOrPhone`), `POST /api/auth/forgot-password` (`client:'easeRX'`), `POST /api/auth/reset-password` | main API server (`server/index.js` — **auth merged in**, port 4000) |
 | Dashboard & analytics (stat cards, revenue chart, activity, new patients, upcoming appointments) | `/dashboard` | `client/src/pages/Dashboard.jsx`, `components/StatCard.jsx` | `GET /api/dashboard` | `getDashboard()`, `stats`, `revenueTrend`, `recentActivity`, `getUpcomingAppointments()` |
-| Patients (search, add modal) | `/patients` | `client/src/pages/Patients.jsx` | `GET /api/patients?q=`, `POST /api/patients` | `patients` |
+| Patients (search, add modal) | `/patients` | `client/src/pages/Patients.jsx` | `GET /api/rx/patients?search&page&pageSize`, `POST /api/rx/patients` | `patients` |
+| Patient detail (profile, Rx + billing history, edit, delete) | `/patients/:id` | `client/src/pages/PatientDetail.jsx` | `GET/PUT/DELETE /api/rx/patients/{id}` | `patients`, `prescriptions`, `bills` |
+| **Medicines catalog** (list, add, edit, delete) | `/medicines` | `client/src/pages/Medicines.jsx` | `GET/POST /api/rx/medicines`, `GET/PUT/DELETE /api/rx/medicines/{id}` | `medicines` |
+| Appointments manager (filters, confirm/complete/cancel/reschedule, **doctor-side create**) | `/appointments` | `client/src/pages/Appointments.jsx` | `GET/POST /api/rx/appointments`, `PUT /api/rx/appointments/{id}`, `POST /api/rx/appointments/{id}/cancel`, `GET /api/rx/appointments/booking-info` | `bookedAppointments` |
+| Prescriptions list (Drafts/Final tabs, detail, finalize, delete) | `/prescriptions` | `client/src/pages/Prescriptions.jsx` | `GET /api/rx/prescriptions?status`, `PUT /api/rx/prescriptions/{id}`, `DELETE /api/rx/prescriptions/{id}` | `prescriptions` |
+| Bill detail (printable invoice, mark paid, partial payment, delete) | `/bill/:id` | `client/src/pages/BillDetail.jsx` | `GET /api/rx/invoices/{id}`, `PUT /api/rx/invoices/{id}/payment`, `DELETE /api/rx/invoices/{id}` | `bills` |
 | New Prescription (patient info, vitals, medicine line items, save draft/final) — **also auto-creates a matching bill** | `/rx` | `client/src/pages/Rx.jsx` | `GET/POST /api/prescriptions`, `POST /api/bills` | `prescriptions`, increments `stats.draftPrescriptions` |
 | Billing (invoice list from prescriptions) | `/bill` | `client/src/pages/Bill.jsx` | `GET/POST /api/bills` | `bills`, increments `stats.receipts` |
 | Public patient self-booking (slots, complaints) | `/book` (no login) | `client/src/pages/BookAppointment.jsx` | `GET /api/appointments/slots`, `GET /api/appointments/complaints`, `POST /api/appointments/book` | `appointmentSlots`, `chiefComplaints`, `bookSlot()` → pushes to `bookedAppointments`, increments `stats.todaysAppointments` |
@@ -70,6 +75,7 @@ All responses use the envelope `{ success: true, data }` or `{ success: false, m
 - **settings**: `{ firstName, lastName, licenseNumber, npi, state, verified, pdf: { margins, scale, paperSize, includeClinicLogo, includeSignature, addWatermark }, clinic: { name, address, phone } }` — **single source of truth for branding**
 - **slot**: `{ id: 'SLOT-1', date: 'YYYY-MM-DD', time: '09:00 AM', status: 'available'|'booked', patientName }`
 - **appointment**: `{ id: 'APT-1001', slotId, date, time, name, phone, gender, address, complaint, createdAt }`
+- **medicine**: `{ id: 'MED-1', name, genericName, form, strength, defaultSig, defaultDispenseQty, defaultRefills, isActive }`
 - **plan**: `{ id: 'basic'|'pro'|'elite', name, price, tagline, features: [{ text, included }], popular? }`
 - **stats**: `{ patients, prescriptions, receipts, revenue, draftPrescriptions, todaysAppointments }`
 
@@ -78,7 +84,8 @@ All responses use the envelope `{ success: true, data }` or `{ success: false, m
 - `client/src/App.jsx`: reads `localStorage.easerx_user` on mount → `user` state.
 - **Auth = real server contract** via `api.js` (register/login/forgot/reset); login accepts email OR phone. Auth endpoints live in the single main backend (`server/index.js`, port 4000 — merged from the old mock-auth-server). Dummy base URL (`https://mock.easerx.local`) in `client/src/config.js` resolves to `http://localhost:4000/api`; real server aaye toh sirf `API_BASE_URL` badalna.
 - **Public routes:** `/` (Home), `/book` (patient booking), `/login` (bounces to `/dashboard` if logged in).
-- **Auth-guarded** via inline `RequireAuth` wrapper → `Layout` (Sidebar + header + BottomNav + `<Outlet/>`): `/dashboard`, `/patients`, `/rx`, `/bill`, `/settings`, `/plans`.
+- **Auth-guarded** via inline `RequireAuth` wrapper → `Layout` (Sidebar + header + BottomNav + `<Outlet/>`): `/dashboard`, `/appointments`, `/patients`, `/patients/:id`, `/medicines`, `/prescriptions`, `/rx`, `/bill`, `/bill/:id`, `/settings`, `/plans`.
+- Public booking accepts an optional clinic id: `/book` and `/book/:clinicId`.
 - Storage keys: `easerx_user`, `easerx_token` (`handleAuth` writes, `handleLogout` removes).
 - Unknown paths → redirect `/`.
 
@@ -95,6 +102,23 @@ All responses use the envelope `{ success: true, data }` or `{ success: false, m
 **Style:** Tailwind utility classes with custom tokens (`bg-surface-container-lowest`, `text-on-surface-variant`, `text-title-lg`, `shadow-card` — see `tailwind.config.js`). Icons: `<span className="material-symbols-outlined">icon_name</span>`. Cards: rounded-xl + shadow-card + border-surface-variant.
 
 **Known quirks (demo):** auth APIs are real-contract (mock server on 4001 requires registered credentials); demo feature data resets on main-server restart; no real PDF/payment; avatar URL is external (data.js `doctorAvatar`); QR codes generated via external api.qrserver.com; `Loader.jsx` uses `style jsx` (Next.js-style, inert in Vite) with inline `<style>` fallback that actually works.
+
+## 7. Real API Integration (adapter layer)
+
+`client/src/api.js` is the single fetch client. It maps UI models ↔ the real server's DTOs so no
+screen had to change shape. Three modes, switched in `client/src/config.js`:
+
+| Mode | Config | Backend |
+|---|---|---|
+| **DEMO** (default) | `USE_DEMO = true` | none — static `client/src/demoData.js` |
+| **MIRROR** | `USE_DEMO = false`, `API_BASE_URL = MIRROR_BASE_URL` | local Express at `:4000`, extended with the real `/api/rx/*` contract (`server/rx.js`) |
+| **REAL** | `USE_DEMO = false`, `API_BASE_URL = REAL_BASE_URL` | actual .NET server (`https://localhost:7161/api`) |
+
+- Every request attaches `Authorization: Bearer <localStorage.easerx_token>` (set by login).
+- Mappers: `mapPatient/toPatientDto` (`fullName↔name`, `dateOfBirth↔dob`), `mapPrescription` (vitals → `bloodPressure/temperature/chiefComplaint`, medicines → `medicineName/sig/dispenseQty/refills`, `Draft|Final↔draft|final`), `mapInvoice` (`description↔label`, `paid|unpaid|partial`), `mapDashboard` (`{value,percentChange}` → `stats.*`, `todayAppointmentsCount`, `upcomingPatients`), `mapAppointment` (`startAt↔date+time`, status strings), `mapSettings` (`registrationNo↔licenseNumber`, `pdfTopMarginMm↔marginTop`…), `mapPlan`, `mapMedicine`.
+- Auth `forgot-password` sends `client: CLIENT_ID` (`'RxMaker'`).
+- Patient booking has **no server slots endpoint** → slots generated client-side (`client/src/bookingSlots.js`) and submitted as a concrete `startAt`.
+- `client/src/demoData.js` mirrors every new capability (medicines, create appointment, deletes, booking-info) so DEMO mode stays fully functional.
 
 ---
 

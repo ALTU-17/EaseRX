@@ -124,6 +124,13 @@ const plans = [
   },
 ];
 
+// ---------- medicine catalog (real API: /api/rx/medicines) ----------
+const medicines = [
+  { id: 'MED-1', name: 'Amoxicillin 500mg Capsule', genericName: 'Amoxicillin', form: 'Capsule', strength: '500mg', defaultSig: 'Take 1 capsule by mouth three times daily for 10 days', defaultDispenseQty: 30, defaultRefills: 0, isActive: true },
+  { id: 'MED-2', name: 'Ibuprofen 400mg Tablet', genericName: 'Ibuprofen', form: 'Tablet', strength: '400mg', defaultSig: 'Take 1 tablet by mouth every 6 hours as needed for pain', defaultDispenseQty: 20, defaultRefills: 1, isActive: true },
+  { id: 'MED-3', name: 'Paracetamol 650mg Tablet', genericName: 'Paracetamol', form: 'Tablet', strength: '650mg', defaultSig: 'Take 1 tablet by mouth twice daily for 5 days', defaultDispenseQty: 10, defaultRefills: 0, isActive: true },
+];
+
 let currentPlan = 'basic';
 
 // ---------- appointment slots (for the public patient booking page) ----------
@@ -253,6 +260,7 @@ function getDashboard() {
 
 module.exports = {
   doctorAvatar,
+  medicines,
   stats,
   revenueTrend,
   recentActivity,

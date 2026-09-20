@@ -1,16 +1,32 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
+import { api } from '../api.js';
 
 const NAV_ITEMS = [
   { to: '/dashboard', label: 'Dashboard', icon: 'grid_view' },
+  { to: '/appointments', label: 'Appointments', icon: 'calendar_month' },
   { to: '/patients', label: 'Patients', icon: 'groups' },
-  { to: '/rx', label: 'Rx', icon: 'clinical_notes' },
+  { to: '/medicines', label: 'Medicines', icon: 'medication' },
+  { to: '/prescriptions', label: 'Prescriptions', icon: 'description' },
+  { to: '/rx', label: 'New Rx', icon: 'clinical_notes' },
   { to: '/bill', label: 'Bill', icon: 'receipt_long' },
   { to: '/settings', label: 'Settings', icon: 'settings' },
   { to: '/plans', label: 'Plans', icon: 'monitor' },
 ];
 
 export default function Sidebar({ onLogout }) {
+  const [planName, setPlanName] = useState('Basic');
+
+  useEffect(() => {
+    api
+      .getPlans()
+      .then((d) => {
+        const match = (d.plans || []).find((p) => p.id === d.currentPlan);
+        setPlanName(match?.name || (d.currentPlan ? 'Active' : 'Basic'));
+      })
+      .catch(() => {});
+  }, []);
+
   return (
     <aside className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0 bg-surface-container-lowest border-r border-surface-variant">
       <div className="flex items-center gap-3 px-6 py-6">
@@ -44,7 +60,7 @@ export default function Sidebar({ onLogout }) {
 
       <div className="p-4 space-y-4">
         <div className="rounded-lg bg-secondary-fixed p-4">
-          <p className="text-sm font-bold text-on-secondary-fixed">Basic Plan Active</p>
+          <p className="text-sm font-bold text-on-secondary-fixed">{planName} Plan Active</p>
           <p className="text-xs text-on-secondary-fixed-variant mt-1">
             Upgrade for unlimited e-prescriptions.
           </p>

@@ -1,5 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import { api } from '../api.js';
+import { buildBookingSlots, CHIEF_COMPLAINTS, slotToIso } from '../bookingSlots.js';
 
 const COLORS = {
   primary: '#132359',
@@ -28,8 +30,10 @@ function formatFullDate(dateStr) {
 }
 
 export default function BookAppointment() {
+  const { clinicId = 'clinic-demo-1' } = useParams();
   const [slots, setSlots] = useState([]);
   const [complaints, setComplaints] = useState([]);
+  const [clinic, setClinic] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -47,16 +51,15 @@ export default function BookAppointment() {
   const [selectedSlotId, setSelectedSlotId] = useState('');
 
   useEffect(() => {
-    Promise.all([api.getSlots(), api.getComplaints()])
-      .then(([slotData, complaintData]) => {
-        setSlots(slotData);
-        setComplaints(complaintData);
-        const dates = [...new Set(slotData.map((s) => s.date))];
-        if (dates.length) setActiveDate(dates[0]);
-      })
-      .catch((e) => setError(e.message))
-      .finally(() => setLoading(false));
-  }, []);
+    // The real server has no slots endpoint — slots are generated client-side.
+    const slotData = buildBookingSlots();
+    setSlots(slotData);
+    setComplaints(CHIEF_COMPLAINTS);
+    const dates = [...new Set(slotData.map((s) => s.date))];
+    if (dates.length) setActiveDate(dates[0]);
+    setLoading(false);
+    api.getBookingClinic(clinicId).then(setClinic).catch(() => {});
+  }, [clinicId]);
 
   const dates = useMemo(() => [...new Set(slots.map((s) => s.date))], [slots]);
   const slotsForActiveDate = useMemo(
@@ -82,20 +85,35 @@ export default function BookAppointment() {
       setError('Please select or describe your chief complaint.');
       return;
     }
+    const slot = slots.find((s) => s.id === selectedSlotId);
+    if (!slot) {
+      setError('Please pick an available time slot.');
+      return;
+    }
     setSubmitting(true);
     try {
-      const appointment = await api.bookAppointment({
-        slotId: selectedSlotId,
+      const appointment = await api.bookPublicAppointment(clinicId, {
+        patientName: form.name,
+        phone: form.phone,
+        gender: form.gender,
+        email: null,
+        startAt: slotToIso(slot.date, slot.time),
+        reason: complaint,
+        notes: form.address || null,
+      });
+      setConfirmed({
+        id: appointment?.id || appointment?.appointmentId || 'APT-' + Date.now(),
         name: form.name,
         phone: form.phone,
         gender: form.gender,
-        address: form.address,
+        date: slot.date,
+        time: slot.time,
         complaint,
+        address: form.address,
       });
-      setConfirmed(appointment);
     } catch (err) {
       setError(err.message);
-      api.getSlots().then(setSlots).catch(() => {});
+      setSlots(buildBookingSlots());
       setSelectedSlotId('');
     } finally {
       setSubmitting(false);
@@ -259,7 +277,7 @@ export default function BookAppointment() {
             {/* <span className="erx-icon" style={{ color: '#fff', fontSize: 26 }}>stethoscope</span> */}
             <span className="erx-icon" style={{ color: '#fff', fontSize: 26 }}>🦷</span>
           </div>
-          <div style={{ fontWeight: 800, fontSize: 20, color: COLORS.primary }}>EaseRX Clinic</div>
+          <div style={{ fontWeight: 800, fontSize: 20, color: COLORS.primary }}>{(clinic && clinic.clinicName) || 'EaseRX Clinic'}</div>
           <p style={{ fontSize: 13.5, color: COLORS.onVariant, marginTop: 4 }}>Book your appointment in under a minute.</p>
         </div>
 
