@@ -141,9 +141,9 @@ export default function Appointments() {
           <ul className="divide-y divide-surface-variant">
             {filtered.map((a) => (
               <li key={a.id} className="p-4 flex flex-col lg:flex-row lg:items-center gap-3 sm:gap-4">
-                <div className="flex flex-col items-center justify-center bg-primary-fixed text-primary rounded-lg w-16 h-12 sm:h-14 flex-shrink-0">
-                  <span className="text-[10px] font-bold leading-none">{formatApptDay(a.date)}</span>
-                  <span className="text-xs font-bold leading-tight mt-1">{a.time}</span>
+                <div className="flex flex-col items-center justify-center bg-primary-fixed text-primary rounded-lg px-2.5 py-2 min-w-[64px] flex-shrink-0">
+                  <span className="text-[10px] font-bold leading-none whitespace-nowrap">{formatApptDay(a.date)}</span>
+                  <span className="text-xs font-bold leading-tight mt-1 whitespace-nowrap">{a.time}</span>
                 </div>
 
                 <div className="flex-1 min-w-0">
