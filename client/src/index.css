@@ -22,9 +22,40 @@ html, body, #root {
   height: 100%;
 }
 
+html {
+  -webkit-text-size-adjust: 100%;
+  /* `clip` (not `hidden`) so position: sticky keeps working in the app shell. */
+  overflow-x: clip;
+}
+
 body {
   font-family: 'Plus Jakarta Sans', sans-serif;
   color: #191c1e;
+  max-width: 100%;
+  overflow-x: clip;
+}
+
+/* On phones every field must be >= 16px or iOS Safari zooms the page on focus.
+   These selectors out-specify the .text-sm utility, so desktop stays 14px. */
+@media (max-width: 640px) {
+  input.text-sm,
+  select.text-sm,
+  textarea.text-sm,
+  input[type='date'],
+  input[type='time'],
+  input[type='tel'],
+  input[type='number'],
+  input[type='email'] {
+    font-size: 16px;
+  }
+}
+
+/* Coarse pointers get roomier hit areas without touching desktop sizing. */
+@media (pointer: coarse) {
+  button,
+  a[role='button'] {
+    touch-action: manipulation;
+  }
 }
 
 /* visible keyboard focus */

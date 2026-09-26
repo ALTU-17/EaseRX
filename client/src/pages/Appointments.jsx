@@ -113,7 +113,7 @@ export default function Appointments() {
           <button
             key={f}
             onClick={() => setFilter(f)}
-            className={`text-sm font-bold px-4 py-2 rounded-lg transition-colors ${
+            className={`text-sm font-bold px-3.5 sm:px-4 py-2 rounded-lg whitespace-nowrap transition-colors ${
               filter === f
                 ? 'bg-primary text-on-primary'
                 : 'bg-surface-container-lowest border border-surface-variant text-on-surface-variant hover:bg-surface-container'
@@ -124,7 +124,7 @@ export default function Appointments() {
         ))}
         <button
           onClick={() => setCreating(true)}
-          className="ml-auto inline-flex items-center gap-1 text-sm font-bold bg-primary text-on-primary rounded-lg px-4 py-2 hover:opacity-90"
+          className="w-full sm:w-auto sm:ml-auto inline-flex items-center justify-center gap-1 text-sm font-bold bg-primary text-on-primary rounded-lg px-4 py-2.5 sm:py-2 hover:opacity-90"
         >
           <span className="material-symbols-outlined text-[18px]">add</span>
           New Appointment
@@ -140,8 +140,8 @@ export default function Appointments() {
         ) : (
           <ul className="divide-y divide-surface-variant">
             {filtered.map((a) => (
-              <li key={a.id} className="p-4 flex flex-col lg:flex-row lg:items-center gap-4">
-                <div className="flex flex-col items-center justify-center bg-primary-fixed text-primary rounded-lg w-16 h-14 flex-shrink-0">
+              <li key={a.id} className="p-4 flex flex-col lg:flex-row lg:items-center gap-3 sm:gap-4">
+                <div className="flex flex-col items-center justify-center bg-primary-fixed text-primary rounded-lg w-16 h-12 sm:h-14 flex-shrink-0">
                   <span className="text-[10px] font-bold leading-none">{formatApptDay(a.date)}</span>
                   <span className="text-xs font-bold leading-tight mt-1">{a.time}</span>
                 </div>
@@ -159,12 +159,12 @@ export default function Appointments() {
                   </p>
                 </div>
 
-                <div className="flex flex-wrap gap-2">
+                <div className="grid grid-cols-2 gap-2 w-full lg:w-auto lg:flex lg:flex-wrap lg:justify-end">
                   {a.status === 'pending' && (
                     <button
                       disabled={busyId === a.id}
                       onClick={() => setStatus(a, 'confirmed')}
-                      className="text-xs font-bold bg-secondary text-on-secondary rounded-lg px-3 py-2 hover:opacity-90 disabled:opacity-50"
+                      className="text-xs font-bold bg-secondary text-on-secondary rounded-lg px-3 py-2.5 sm:py-2 hover:opacity-90 disabled:opacity-50"
                     >
                       Confirm
                     </button>
@@ -173,7 +173,7 @@ export default function Appointments() {
                     <button
                       disabled={busyId === a.id}
                       onClick={() => setStatus(a, 'completed')}
-                      className="text-xs font-bold border border-outline-variant text-on-background rounded-lg px-3 py-2 hover:bg-surface-container disabled:opacity-50"
+                      className="text-xs font-bold border border-outline-variant text-on-background rounded-lg px-3 py-2.5 sm:py-2 hover:bg-surface-container disabled:opacity-50"
                     >
                       Complete
                     </button>
@@ -182,7 +182,7 @@ export default function Appointments() {
                     <button
                       disabled={busyId === a.id}
                       onClick={() => openReschedule(a)}
-                      className="text-xs font-bold border border-outline-variant text-on-background rounded-lg px-3 py-2 hover:bg-surface-container disabled:opacity-50"
+                      className="text-xs font-bold border border-outline-variant text-on-background rounded-lg px-3 py-2.5 sm:py-2 hover:bg-surface-container disabled:opacity-50"
                     >
                       Reschedule
                     </button>
@@ -191,7 +191,7 @@ export default function Appointments() {
                     <button
                       disabled={busyId === a.id}
                       onClick={() => cancelAppt(a)}
-                      className="text-xs font-bold text-error border border-outline-variant rounded-lg px-3 py-2 hover:bg-error-container disabled:opacity-50"
+                      className="text-xs font-bold text-error border border-outline-variant rounded-lg px-3 py-2.5 sm:py-2 hover:bg-error-container disabled:opacity-50"
                     >
                       Cancel
                     </button>
@@ -206,13 +206,13 @@ export default function Appointments() {
       {/* Create appointment modal (doctor-side) */}
       {creating && (
         <div
-          className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4"
+          className="fixed inset-0 bg-black/40 flex items-end sm:items-center justify-center z-50 px-0 sm:px-4 overflow-y-auto"
           onClick={() => setCreating(false)}
         >
           <form
             onSubmit={submitCreate}
             onClick={(e) => e.stopPropagation()}
-            className="bg-surface-container-lowest rounded-xl shadow-modal border border-surface-variant p-6 w-full max-w-md space-y-4"
+            className="bg-surface-container-lowest rounded-t-2xl sm:rounded-xl shadow-modal border border-surface-variant p-5 sm:p-6 w-full max-w-md max-h-[92vh] overflow-y-auto space-y-4 pb-safe-bottom"
           >
             <h4 className="text-title-lg font-bold text-on-background">New Appointment</h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -275,11 +275,11 @@ export default function Appointments() {
                 />
               </label>
             </div>
-            <div className="flex justify-end gap-3 pt-2">
-              <button type="button" onClick={() => setCreating(false)} className="text-sm text-on-surface-variant hover:underline">
+            <div className="flex flex-col gap-2 sm:flex-row sm:justify-end sm:gap-3 pt-2">
+              <button type="button" onClick={() => setCreating(false)} className="order-2 sm:order-1 text-sm text-on-surface-variant hover:underline py-2 sm:py-0">
                 Cancel
               </button>
-              <button type="submit" className="bg-primary text-on-primary text-sm font-bold rounded-lg px-5 py-2.5 hover:opacity-90">
+              <button type="submit" className="order-1 sm:order-2 bg-primary text-on-primary text-sm font-bold rounded-lg px-5 py-3 sm:py-2.5 hover:opacity-90">
                 Create Appointment
               </button>
             </div>
@@ -290,13 +290,13 @@ export default function Appointments() {
       {/* Reschedule modal */}
       {rescheduling && (
         <div
-          className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4"
+          className="fixed inset-0 bg-black/40 flex items-end sm:items-center justify-center z-50 px-0 sm:px-4 overflow-y-auto"
           onClick={() => setRescheduling(null)}
         >
           <form
             onSubmit={submitReschedule}
             onClick={(e) => e.stopPropagation()}
-            className="bg-surface-container-lowest rounded-xl shadow-modal border border-surface-variant p-6 w-full max-w-sm space-y-4"
+            className="bg-surface-container-lowest rounded-t-2xl sm:rounded-xl shadow-modal border border-surface-variant p-5 sm:p-6 w-full max-w-sm max-h-[92vh] overflow-y-auto space-y-4 pb-safe-bottom"
           >
             <h4 className="text-title-lg font-bold text-on-background">
               Reschedule — {rescheduling.name}
@@ -319,11 +319,11 @@ export default function Appointments() {
                 className="mt-1 w-full bg-surface-container-low border border-surface-variant rounded-lg px-3 py-2.5 text-sm text-on-background outline-none focus:border-secondary"
               />
             </label>
-            <div className="flex justify-end gap-3 pt-2">
-              <button type="button" onClick={() => setRescheduling(null)} className="text-sm text-on-surface-variant hover:underline">
+            <div className="flex flex-col gap-2 sm:flex-row sm:justify-end sm:gap-3 pt-2">
+              <button type="button" onClick={() => setRescheduling(null)} className="order-2 sm:order-1 text-sm text-on-surface-variant hover:underline py-2 sm:py-0">
                 Cancel
               </button>
-              <button type="submit" className="bg-primary text-on-primary text-sm font-bold rounded-lg px-5 py-2.5 hover:opacity-90">
+              <button type="submit" className="order-1 sm:order-2 bg-primary text-on-primary text-sm font-bold rounded-lg px-5 py-3 sm:py-2.5 hover:opacity-90">
                 Save
               </button>
             </div>

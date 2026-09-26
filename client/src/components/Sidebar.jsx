@@ -1,18 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { api } from '../api.js';
-
-const NAV_ITEMS = [
-  { to: '/dashboard', label: 'Dashboard', icon: 'grid_view' },
-  { to: '/appointments', label: 'Appointments', icon: 'calendar_month' },
-  { to: '/patients', label: 'Patients', icon: 'groups' },
-  { to: '/medicines', label: 'Medicines', icon: 'medication' },
-  { to: '/prescriptions', label: 'Prescriptions', icon: 'description' },
-  { to: '/rx', label: 'New Rx', icon: 'clinical_notes' },
-  { to: '/bill', label: 'Bill', icon: 'receipt_long' },
-  { to: '/settings', label: 'Settings', icon: 'settings' },
-  { to: '/plans', label: 'Plans', icon: 'monitor' },
-];
+import { NAV_ITEMS } from '../navItems.js';
 
 export default function Sidebar({ onLogout }) {
   const [planName, setPlanName] = useState('Basic');

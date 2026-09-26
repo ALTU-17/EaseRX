@@ -153,7 +153,69 @@ export default function Medicines() {
 
       {error && <p className="text-sm text-error">{error}</p>}
 
-      <div className="bg-surface-container-lowest rounded-xl shadow-card border border-surface-variant overflow-x-auto">
+      {/* Phone: card list */}
+      <ul className="sm:hidden space-y-3">
+        {medicines.map((m) => (
+          <li
+            key={m.id}
+            className="bg-surface-container-lowest rounded-xl shadow-card border border-surface-variant p-4"
+          >
+            <div className="flex items-start gap-3">
+              <span className="w-10 h-10 rounded-full bg-primary-fixed text-primary flex items-center justify-center flex-shrink-0">
+                <span className="material-symbols-outlined text-[20px]">medication</span>
+              </span>
+              <div className="flex-1 min-w-0">
+                <p className="font-bold text-on-background break-words">{m.name}</p>
+                <p className="text-xs text-on-surface-variant truncate">{m.genericName || m.id}</p>
+              </div>
+            </div>
+            <div className="mt-3 grid grid-cols-3 gap-2 text-center">
+              <div className="bg-surface-container-low rounded-lg py-2 px-1">
+                <p className="text-[10px] font-bold text-on-surface-variant uppercase">Form</p>
+                <p className="text-xs text-on-background mt-0.5 truncate">{m.form || '—'}</p>
+              </div>
+              <div className="bg-surface-container-low rounded-lg py-2 px-1">
+                <p className="text-[10px] font-bold text-on-surface-variant uppercase">Qty</p>
+                <p className="text-xs text-on-background mt-0.5">{m.defaultDispenseQty || '—'}</p>
+              </div>
+              <div className="bg-surface-container-low rounded-lg py-2 px-1">
+                <p className="text-[10px] font-bold text-on-surface-variant uppercase">Refills</p>
+                <p className="text-xs text-on-background mt-0.5">{m.defaultRefills ?? 0}</p>
+              </div>
+            </div>
+            {m.defaultSig && (
+              <p className="mt-3 text-xs text-on-surface-variant line-clamp-2">{m.defaultSig}</p>
+            )}
+            <div className="mt-3 flex gap-2">
+              <button
+                type="button"
+                onClick={() => startEdit(m)}
+                className="flex-1 inline-flex items-center justify-center gap-1 text-sm font-bold border border-outline-variant text-on-background rounded-lg py-2.5 active:bg-surface-container"
+              >
+                <span className="material-symbols-outlined text-[18px]">edit</span>
+                Edit
+              </button>
+              <button
+                type="button"
+                onClick={() => remove(m)}
+                aria-label={`Delete ${m.name}`}
+                className="flex-1 inline-flex items-center justify-center gap-1 text-sm font-bold border border-outline-variant text-error rounded-lg py-2.5 active:bg-error-container"
+              >
+                <span className="material-symbols-outlined text-[18px]">delete</span>
+                Delete
+              </button>
+            </div>
+          </li>
+        ))}
+        {medicines.length === 0 && (
+          <li className="bg-surface-container-lowest rounded-xl shadow-card border border-surface-variant p-8 text-center text-sm text-on-surface-variant">
+            No medicines match &quot;{query}&quot;.
+          </li>
+        )}
+      </ul>
+
+      {/* Tablet & desktop: table */}
+      <div className="hidden sm:block bg-surface-container-lowest rounded-xl shadow-card border border-surface-variant overflow-x-auto">
         <table className="w-full text-sm min-w-[720px]">
           <thead className="bg-surface-container-low text-on-surface-variant text-label-md">
             <tr>

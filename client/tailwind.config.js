@@ -73,6 +73,8 @@ export default {
         xl: '1.5rem',
       },
       spacing: {
+        'safe-bottom': 'env(safe-area-inset-bottom, 0px)',
+        'safe-top': 'env(safe-area-inset-top, 0px)',
         'container-margin': '2rem',
         gutter: '1.5rem',
         'stack-sm': '0.5rem',

@@ -5,9 +5,21 @@ export default function Settings() {
   const [settings, setSettings] = useState(null);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState('');
+  // The print preview is scaled up to 150% on desktop; on a phone that would
+  // overflow the card, so clamp it to 100% max on narrow screens.
+  const [compact, setCompact] = useState(false);
 
   useEffect(() => {
     api.getSettings().then(setSettings).catch((e) => setError(e.message));
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return undefined;
+    const mq = window.matchMedia('(max-width: 640px)');
+    const apply = () => setCompact(mq.matches);
+    apply();
+    mq.addEventListener('change', apply);
+    return () => mq.removeEventListener('change', apply);
   }, []);
 
   if (error) return <p className="text-error text-sm">{error}</p>;
@@ -100,13 +112,13 @@ export default function Settings() {
           </button>
         </form>
 
-        <div className="bg-surface-container-lowest rounded-xl shadow-card border border-surface-variant p-6 space-y-6">
-          <div className="flex items-center gap-3">
-            <span className="w-9 h-9 rounded-full bg-primary-fixed text-primary flex items-center justify-center">
+        <div className="bg-surface-container-lowest rounded-xl shadow-card border border-surface-variant p-4 sm:p-6 space-y-6">
+          <div className="flex items-center flex-wrap gap-3">
+            <span className="w-9 h-9 rounded-full bg-primary-fixed text-primary flex items-center justify-center flex-shrink-0">
               <span className="material-symbols-outlined text-[20px]">print</span>
             </span>
             <h3 className="text-title-lg font-bold text-on-background">PDF Configuration</h3>
-            <span className="ml-auto text-xs bg-surface-container-high text-on-surface-variant px-3 py-1 rounded-full">Live Preview Active</span>
+            <span className="ml-auto text-xs bg-surface-container-high text-on-surface-variant px-3 py-1 rounded-full whitespace-nowrap">Live Preview Active</span>
           </div>
 
           <div>
@@ -170,15 +182,15 @@ export default function Settings() {
             </div>
           </div>
 
-          <div className="flex justify-between items-center pt-2 border-t border-surface-variant">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between pt-2 border-t border-surface-variant">
             <button
               type="button"
               onClick={resetDefaults}
-              className="text-sm font-medium text-on-surface-variant hover:underline"
+              className="text-sm font-medium text-on-surface-variant hover:underline self-start py-1"
             >
               Reset Defaults
             </button>
-            <button onClick={saveConfig} className="bg-primary text-on-primary font-bold rounded-lg px-5 py-2.5 hover:opacity-90 transition-opacity">
+            <button onClick={saveConfig} className="w-full sm:w-auto bg-primary text-on-primary font-bold rounded-lg px-5 py-3 sm:py-2.5 hover:opacity-90 transition-opacity">
               {saved ? 'Saved ✓' : 'Save Configuration'}
             </button>
           </div>
@@ -186,14 +198,14 @@ export default function Settings() {
       </div>
 
       <div className="xl:col-span-2 xl:sticky xl:top-24">
-        <div className="bg-surface-container p-4 rounded-xl">
+        <div className="bg-surface-container p-3 sm:p-4 rounded-xl overflow-hidden">
           <div className="flex items-center gap-2 mb-3">
             <span className="material-symbols-outlined text-on-surface-variant text-[18px]">visibility</span>
             <h4 className="font-bold text-on-background text-sm">Live Print Preview</h4>
           </div>
           <div
-            className="bg-white rounded-lg shadow-modal p-6 text-sm"
-            style={{ transform: `scale(${settings.pdf.scale / 100})`, transformOrigin: 'top' }}
+            className="bg-white rounded-lg shadow-modal p-4 sm:p-6 text-sm origin-top"
+            style={{ transform: `scale(${(compact ? Math.min(settings.pdf.scale, 100) : settings.pdf.scale) / 100})` }}
           >
             <div className="flex justify-between items-start border-b border-surface-variant pb-3">
               <div>

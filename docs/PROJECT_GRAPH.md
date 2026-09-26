@@ -53,7 +53,7 @@ App.jsx
 │   ├── /book ........... BookAppointment.jsx ....... patient self-booking
 │   └── /login .......... Auth.jsx .................. bounce→/dashboard if logged in
 │
-├── RequireAuth wrapper ──┬── Layout.jsx (Sidebar + header + BottomNav + <Outlet/>)
+├── RequireAuth wrapper ──┬── Layout.jsx (Sidebar + header + MobileDrawer + BottomNav + <Outlet/>)
 │                         │
 │   ├── /dashboard ───────┼── Dashboard.jsx
 │   ├── /appointments ────┼── Appointments.jsx      (+ doctor-side create modal)
@@ -150,9 +150,11 @@ App.jsx
 ├── BookAppointment.jsx
 ├── Auth.jsx ──────────── (signin/register/forgot/reset views)
 ├── Layout.jsx
-│   ├── Sidebar.jsx      (NAV_ITEMS — 6 items)
-│   ├── BottomNav.jsx    (ITEMS — 5 items, md:hidden)
+│   ├── Sidebar.jsx      (NAV_ITEMS — 9 items, md: and up only)
+│   ├── MobileDrawer.jsx (NAV_ITEMS — slide-in menu, below md, opened from the header hamburger)
+│   ├── BottomNav.jsx    (BOTTOM_ITEMS — 5 tabs, md:hidden, safe-area padded)
 │   └── Outlet → pages/* (title/subtitle from TITLES map)
+├── navItems.js ──────── single source of truth for NAV_ITEMS + BOTTOM_ITEMS
 ├── pages/*
 │   ├── Dashboard.jsx ──── StatCard.jsx, ShareBookingLink.jsx (booking-info API)
 │   ├── Appointments.jsx
@@ -217,7 +219,10 @@ GitHub: github.com/ALTU-17/EaseRX (branch main)
 | What you want to change | Go to |
 |---|---|
 | Page titles / subtitles | `Layout.jsx` → `TITLES` |
-| Sidebar / bottom nav items | `Sidebar.jsx` → `NAV_ITEMS`, `BottomNav.jsx` → `ITEMS` |
+| Sidebar / drawer / bottom nav items | `client/src/navItems.js` (`NAV_ITEMS`, `BOTTOM_ITEMS`) |
+| Mobile nav drawer | `client/src/components/MobileDrawer.jsx` |
+| Mobile/safe-area CSS, 16px inputs | `client/src/index.css` |
+| Phone breakpoint behaviour | per-screen `sm:` / `lg:` classes in `pages/*` |
 | Add endpoint | `server/index.js` + wrapper in `client/src/api.js` |
 | Seed/mock data | `server/data.js` |
 | Colors, fonts, shadows | `client/tailwind.config.js`, `client/src/index.css` |
@@ -235,6 +240,19 @@ GitHub: github.com/ALTU-17/EaseRX (branch main)
 ---
 
 ## 8. Change Log (dated)
+
+### 2026-09-24 — Full mobile responsiveness
+
+**Goal:** make every screen usable from 320px up without touching the desktop layout, any API contract or any data shape.
+
+- **Global foundation** — `client/index.html` viewport gains `viewport-fit=cover`; `client/src/index.css` adds `overflow-x: clip` guards, `-webkit-text-size-adjust`, a ≤640px rule forcing 16px form fields (stops iOS Safari focus-zoom) and a coarse-pointer touch-action rule; `client/tailwind.config.js` gains `safe-bottom` / `safe-top` spacing tokens.
+- **Navigation (was the real gap)** — Patients / Medicines / Prescriptions / Settings were **unreachable on phones** (sidebar is `md:`+, bottom bar had 5 tabs, no menu). New `client/src/components/MobileDrawer.jsx` (slide-in panel, all 9 items, plan-free, logout, Escape/backdrop/route-change close, body scroll lock, `role=dialog`); `Layout.jsx` gains a `md:hidden` hamburger and a compact phone header (icon-only New Rx, truncated clinic name); `BottomNav.jsx` items are now `flex-1` with safe-area padding so they no longer overflow 320px screens; nav lists moved to `client/src/navItems.js`.
+- **Tables → cards** — `Patients.jsx` and `Medicines.jsx` render tappable card lists below `sm` (Medicines' 720px-wide table no longer forces sideways scrolling); tables stay for `sm`+; Patients' Phone column moves to `lg` so the table fits tablets.
+- **Prescriptions** — master/detail was broken on phones (detail rendered below the list). Detail panel extracted; phones now get a **full-screen sheet** with a back button, Escape close and body scroll lock, desktop keeps the two-column layout.
+- **Per-screen phone fixes** — Appointments (2-col action grid, wrapping filter chips, full-width create button, bottom-sheet modals with `max-h-[92vh]` scroll); BillDetail (`p-4 sm:p-8` invoice, full-width totals, 2-col action grid); Bill (stacked line-item rows, stacked total/submit); Dashboard + `StatCard` (value `text-lg sm:text-display-lg`, clamped revenue chart columns); Settings (compact print preview clamps scale to 100%, stacked action rows); Rx (full-width action buttons); Auth (narrower card, stacked clinic/reg fields); ShareBookingLink (QR `max-w-full`).
+- **Landing + public booking** — `Home.jsx` gains a `@media (max-width: 420px)` block (clamped hero/section type, showcase cards and analytics cards de-absolutised, floating cards pulled inside the viewport); `BookAppointment.jsx` gets phone padding, 16px fields, tighter slot grid and a **sticky `Book Appointment` CTA** over a gradient backdrop.
+- **Verification** — `npm run build` clean (59 modules); automated horizontal-overflow sweep (document scrollWidth vs viewport **and** per-element `getBoundingClientRect` check) across `/dashboard`, `/appointments`, `/patients`, `/patients/:id`, `/medicines`, `/prescriptions`, `/rx`, `/bill`, `/bill/:id`, `/settings`, `/plans`, `/book`, `/` at **320 / 360 / 390 / 414** px → no real overflow; 390px click-through (drawer → Patients/Medicines/Settings, prescription sheet open→finalize→close, Explore-Demo login); sticky-header and bottom-nav clearance assertions; desktop/tablet regression at **768 / 1280** px.
+- **Git** — left **uncommitted** for review (no commit made in this change set).
 
 ### 2026-09-20 — Real `/api/rx/*` integration
 

@@ -75,7 +75,7 @@ export default function ShareBookingLink() {
   return (
     <div className="bg-surface-container-lowest rounded-xl shadow-card border border-surface-variant overflow-hidden">
       <div className="p-4 border-b border-surface-variant flex items-center gap-3">
-        <span className="w-9 h-9 rounded-full bg-primary-fixed text-primary flex items-center justify-center">
+        <span className="w-9 h-9 rounded-full bg-primary-fixed text-primary flex items-center justify-center flex-shrink-0">
           <span className="material-symbols-outlined text-[20px]">qr_code_2</span>
         </span>
         <div>
@@ -114,7 +114,7 @@ export default function ShareBookingLink() {
           <img
             src={qrSrc}
             alt="QR code for the patient booking page"
-            className="w-40 h-40 rounded-lg border border-surface-variant"
+            className="w-40 h-40 max-w-full rounded-lg border border-surface-variant"
           />
           <p className="text-xs text-on-surface-variant text-center">
             Scan to open the booking page on a phone.

@@ -76,7 +76,7 @@ export default function Rx() {
 
   if (saved) {
     return (
-      <div className="max-w-lg mx-auto bg-surface-container-lowest rounded-xl shadow-card border border-surface-variant p-8 text-center space-y-4">
+      <div className="max-w-lg mx-auto bg-surface-container-lowest rounded-xl shadow-card border border-surface-variant p-5 sm:p-8 text-center space-y-4">
         <div className="w-14 h-14 rounded-full bg-secondary-fixed text-secondary flex items-center justify-center mx-auto">
           <span className="material-symbols-outlined text-[28px]">task_alt</span>
         </div>
@@ -86,8 +86,8 @@ export default function Rx() {
         <p className="text-sm text-on-surface-variant">
           {saved.id} for {saved.patient.name} — {saved.medicines.length} medicine(s).
         </p>
-        <div className="flex justify-center gap-3 pt-2">
-          <button onClick={() => navigate('/bill')} className="text-sm font-bold border border-outline-variant rounded-lg px-4 py-2.5 hover:bg-surface-container">
+        <div className="flex flex-col sm:flex-row sm:justify-center gap-2 sm:gap-3 pt-2">
+          <button onClick={() => navigate('/bill')} className="w-full sm:w-auto text-sm font-bold border border-outline-variant rounded-lg px-4 py-3 sm:py-2.5 hover:bg-surface-container">
             View Bill
           </button>
           <button
@@ -98,7 +98,7 @@ export default function Rx() {
               setAdvice('');
               setMedicines([{ ...emptyMed }]);
             }}
-            className="text-sm font-bold bg-primary text-on-primary rounded-lg px-4 py-2.5 hover:opacity-90"
+            className="w-full sm:w-auto text-sm font-bold bg-primary text-on-primary rounded-lg px-4 py-3 sm:py-2.5 hover:opacity-90"
           >
             New Prescription
           </button>
@@ -281,18 +281,18 @@ export default function Rx() {
 
       {error && <p className="text-sm text-error">{error}</p>}
 
-      <div className="flex flex-col sm:flex-row gap-3 sm:justify-end">
+      <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 sm:justify-end">
         <button
           disabled={saving}
           onClick={() => save('draft')}
-          className="border border-outline-variant text-on-background font-bold rounded-lg px-5 py-3 hover:bg-surface-container-low transition-colors disabled:opacity-60"
+          className="w-full sm:w-auto border border-outline-variant text-on-background font-bold rounded-lg px-5 py-3.5 sm:py-3 hover:bg-surface-container-low transition-colors disabled:opacity-60"
         >
           Save as Draft
         </button>
         <button
           disabled={saving}
           onClick={() => save('final')}
-          className="bg-primary text-on-primary font-bold rounded-lg px-5 py-3 hover:opacity-90 transition-opacity disabled:opacity-60"
+          className="w-full sm:w-auto bg-primary text-on-primary font-bold rounded-lg px-5 py-3.5 sm:py-3 hover:opacity-90 transition-opacity disabled:opacity-60"
         >
           {saving ? 'Saving…' : 'Save Prescription & Generate Bill'}
         </button>

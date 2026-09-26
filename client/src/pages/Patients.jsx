@@ -2,6 +2,16 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../api.js';
 
+function initialsOf(name) {
+  return (name || '?')
+    .split(' ')
+    .filter(Boolean)
+    .map((w) => w[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
+}
+
 export default function Patients() {
   const navigate = useNavigate();
   const [patients, setPatients] = useState([]);
@@ -77,13 +87,49 @@ export default function Patients() {
 
       {error && <p className="text-sm text-error">{error}</p>}
 
-      <div className="bg-surface-container-lowest rounded-xl shadow-card border border-surface-variant overflow-hidden">
+      {/* Phone: card list */}
+      <ul className="sm:hidden space-y-3">
+        {patients.map((p) => (
+          <li key={p.id}>
+            <button
+              type="button"
+              onClick={() => navigate(`/patients/${p.id}`)}
+              className="w-full text-left bg-surface-container-lowest rounded-xl shadow-card border border-surface-variant p-4 flex items-center gap-3 active:bg-surface-container-low transition-colors"
+            >
+              <span className="w-10 h-10 rounded-full bg-primary-fixed text-primary flex items-center justify-center font-bold flex-shrink-0">
+                {initialsOf(p.name)}
+              </span>
+              <span className="flex-1 min-w-0">
+                <span className="block font-bold text-on-background truncate">{p.name}</span>
+                <span className="block text-[11px] text-on-surface-variant truncate">{p.id}</span>
+                <span className="mt-1 flex items-center gap-2 min-w-0">
+                  <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant flex-shrink-0">
+                    {p.gender || '—'}
+                  </span>
+                  {p.phone && (
+                    <span className="text-[11px] text-on-surface-variant truncate">{p.phone}</span>
+                  )}
+                </span>
+              </span>
+              <span className="material-symbols-outlined text-primary flex-shrink-0">chevron_right</span>
+            </button>
+          </li>
+        ))}
+        {patients.length === 0 && (
+          <li className="bg-surface-container-lowest rounded-xl shadow-card border border-surface-variant p-8 text-center text-sm text-on-surface-variant">
+            No patients match &quot;{query}&quot;.
+          </li>
+        )}
+      </ul>
+
+      {/* Tablet & desktop: table */}
+      <div className="hidden sm:block bg-surface-container-lowest rounded-xl shadow-card border border-surface-variant overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="bg-surface-container-low text-on-surface-variant text-label-md">
             <tr>
               <th className="text-left px-5 py-3">Patient</th>
               <th className="text-left px-5 py-3 hidden sm:table-cell">DOB</th>
-              <th className="text-left px-5 py-3 hidden md:table-cell">Phone</th>
+              <th className="text-left px-5 py-3 hidden lg:table-cell">Phone</th>
               <th className="text-left px-5 py-3">Gender</th>
               <th className="px-5 py-3"></th>
             </tr>
@@ -96,7 +142,7 @@ export default function Patients() {
                   <p className="text-xs text-on-surface-variant">{p.id}</p>
                 </td>
                 <td className="px-5 py-3 hidden sm:table-cell text-on-surface-variant">{p.dob}</td>
-                <td className="px-5 py-3 hidden md:table-cell text-on-surface-variant">{p.phone}</td>
+                <td className="px-5 py-3 hidden lg:table-cell text-on-surface-variant">{p.phone}</td>
                 <td className="px-5 py-3 text-on-surface-variant">{p.gender}</td>
                 <td className="px-5 py-3 text-right cursor-pointer hover:opacity-70" onClick={() => navigate(`/patients/${p.id}`)} title="View patient profile">
                   <span className="material-symbols-outlined text-primary">chevron_right</span>

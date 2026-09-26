@@ -4761,6 +4761,77 @@ export default function Home() {
           }
         }
 
+        /* Small phones (<= 420px): the 600px block still relies on oversized
+           type and absolutely positioned showcase cards, which overflow. */
+        @media (max-width: 420px) {
+          .erx-hero h1 {
+            font-size: 36px;
+          }
+
+          .erx-section-intro h2,
+          .erx-final h2 {
+            font-size: 31px;
+          }
+
+          .erx-hero-trust {
+            transform: none;
+          }
+
+          /* Keep the dashboard mock's floating cards inside the viewport. */
+          .erx-floating-card--top {
+            right: 0;
+          }
+
+          .erx-floating-card--bottom {
+            left: 0;
+          }
+
+          .erx-flow-visual {
+            min-height: 0;
+            width: 100%;
+            margin-left: 0;
+            transform: none;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+          }
+
+          .erx-flow-visual .erx-flow-card {
+            position: static;
+            width: 100%;
+            left: auto;
+            right: auto;
+            top: auto;
+            bottom: auto;
+          }
+
+          .erx-flow-connector {
+            display: none;
+          }
+
+          .erx-analytics-visual {
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+          }
+
+          .erx-big-metric,
+          .erx-mini-chart,
+          .erx-analytics-floating {
+            position: static;
+            width: 100%;
+            left: auto;
+            right: auto;
+            top: auto;
+            bottom: auto;
+          }
+
+          .erx-footer-main {
+            grid-template-columns: 1fr;
+          }
+        }
+
         @media (prefers-reduced-motion: reduce) {
           *,
           *::before,

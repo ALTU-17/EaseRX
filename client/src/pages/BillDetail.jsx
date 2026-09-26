@@ -78,13 +78,13 @@ export default function BillDetail() {
 
       {/* Toolbar */}
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h3 className="text-headline-sm font-bold text-on-background">{bill.number || bill.id}</h3>
+        <div className="min-w-0">
+          <h3 className="text-headline-sm font-bold text-on-background break-words">{bill.number || bill.id}</h3>
           <p className="text-sm text-on-surface-variant mt-0.5">{new Date(bill.date).toLocaleString()}</p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-2 sm:gap-3 w-full sm:w-auto">
           <span
-            className={`text-xs font-bold px-3 py-1.5 rounded-full self-center ${
+            className={`text-xs font-bold px-3 py-1.5 rounded-full w-full sm:w-auto text-center sm:self-center ${
               bill.status === 'paid' ? 'bg-secondary-fixed text-on-secondary-fixed-variant' : 'bg-error-container text-on-error-container'
             }`}
           >
@@ -95,14 +95,14 @@ export default function BillDetail() {
               <button
                 disabled={busy}
                 onClick={recordPayment}
-                className="text-sm font-bold border border-outline-variant text-on-background rounded-lg px-4 py-2.5 hover:bg-surface-container disabled:opacity-60"
+                className="flex-1 basis-[calc(50%-0.25rem)] sm:basis-auto text-sm font-bold border border-outline-variant text-on-background rounded-lg px-4 py-3 sm:py-2.5 hover:bg-surface-container disabled:opacity-60"
               >
                 Record Payment
               </button>
               <button
                 disabled={busy}
                 onClick={markPaid}
-                className="text-sm font-bold bg-secondary text-on-secondary rounded-lg px-4 py-2.5 hover:opacity-90 disabled:opacity-60"
+                className="flex-1 basis-[calc(50%-0.25rem)] sm:basis-auto text-sm font-bold bg-secondary text-on-secondary rounded-lg px-4 py-3 sm:py-2.5 hover:opacity-90 disabled:opacity-60"
               >
                 {busy ? 'Saving…' : 'Mark as Paid'}
               </button>
@@ -110,14 +110,14 @@ export default function BillDetail() {
           )}
           <button
             onClick={removeBill}
-            className="inline-flex items-center gap-1 text-sm font-bold border border-outline-variant text-error rounded-lg px-4 py-2.5 hover:bg-error-container"
+            className="flex-1 basis-[calc(50%-0.25rem)] sm:basis-auto inline-flex items-center justify-center gap-1 text-sm font-bold border border-outline-variant text-error rounded-lg px-4 py-3 sm:py-2.5 hover:bg-error-container"
           >
             <span className="material-symbols-outlined text-[18px]">delete</span>
             Delete
           </button>
           <button
             onClick={() => window.print()}
-            className="inline-flex items-center gap-1 text-sm font-bold border border-outline-variant text-on-background rounded-lg px-4 py-2.5 hover:bg-surface-container"
+            className="flex-1 basis-[calc(50%-0.25rem)] sm:basis-auto inline-flex items-center justify-center gap-1 text-sm font-bold border border-outline-variant text-on-background rounded-lg px-4 py-3 sm:py-2.5 hover:bg-surface-container"
           >
             <span className="material-symbols-outlined text-[18px]">print</span>
             Print / PDF
@@ -128,10 +128,10 @@ export default function BillDetail() {
       {error && <p className="text-sm text-error">{error}</p>}
 
       {/* Invoice sheet */}
-      <div className="bg-white rounded-xl shadow-card border border-surface-variant p-8">
-        <div className="flex justify-between items-start border-b border-gray-200 pb-4">
-          <div>
-            <p className="text-lg font-bold text-gray-900">{(settings && settings.clinic && settings.clinic.name) || 'Ease Dental Clinic'}</p>
+      <div className="bg-white rounded-xl shadow-card border border-surface-variant p-4 sm:p-8">
+        <div className="flex justify-between items-start gap-3 border-b border-gray-200 pb-4">
+          <div className="min-w-0">
+            <p className="text-base sm:text-lg font-bold text-gray-900 break-words">{(settings && settings.clinic && settings.clinic.name) || 'Ease Dental Clinic'}</p>
             <p className="text-xs text-gray-500 mt-0.5">{(settings && settings.clinic && settings.clinic.address) || ''}</p>
             <p className="text-xs text-gray-500">Ph: {(settings && settings.clinic && settings.clinic.phone) || '—'}</p>
           </div>
@@ -173,7 +173,7 @@ export default function BillDetail() {
         </table>
 
         <div className="flex justify-end mt-4">
-          <div className="w-48">
+          <div className="w-full sm:w-48">
             <div className="flex justify-between py-1.5 text-sm">
               <span className="text-gray-500">Subtotal</span>
               <span className="text-gray-800">₹{bill.total}</span>

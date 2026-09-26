@@ -43,8 +43,8 @@ export default function Dashboard() {
         <StatCard label="REVENUE" value={`₹${stats.revenue.toLocaleString()}`} icon="payments" trend="+18% this month" iconBg="bg-secondary-fixed" iconColor="text-secondary" />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="space-y-6 lg:col-span-1">
+      <div className="flex flex-col lg:grid lg:grid-cols-3 gap-6">
+        <div className="order-2 lg:order-none space-y-6 lg:col-span-1">
           <div className="bg-surface-container-lowest rounded-xl shadow-card border border-surface-variant overflow-hidden">
             <div className="p-4 border-b border-surface-variant flex justify-between items-center">
               <h3 className="text-title-lg font-bold text-on-background">Recent Activity</h3>
@@ -91,31 +91,32 @@ export default function Dashboard() {
           
         </div>
 
-        <div className="lg:col-span-2 space-y-6">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="bg-surface-container-lowest rounded-xl shadow-card border border-surface-variant p-5 cursor-pointer hover:border-secondary transition-colors" onClick={() => navigate('/prescriptions')}>
+        {/* Mobile: children hoist into the flex column (order-1..4); lg: normal 2-col grid item */}
+        <div className="contents lg:block lg:space-y-6 lg:col-span-2">
+          <div className="order-3 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="bg-surface-container-lowest rounded-xl shadow-card border border-surface-variant p-4 sm:p-5 cursor-pointer hover:border-secondary transition-colors" onClick={() => navigate('/prescriptions')}>
               <div className="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center mb-3">
                 <span className="material-symbols-outlined text-primary">description</span>
               </div>
               <h4 className="font-bold text-on-background">Draft Prescriptions</h4>
-              <p className="text-3xl font-bold text-primary mt-2">{stats.draftPrescriptions}</p>
+              <p className="text-2xl sm:text-3xl font-bold text-primary mt-2">{stats.draftPrescriptions}</p>
               <p className="text-xs text-on-surface-variant mt-1">Awaiting your approval</p>
             </div>
-            <div className="bg-surface-container-lowest rounded-xl shadow-card border border-surface-variant p-5 cursor-pointer hover:border-secondary transition-colors" onClick={() => navigate('/appointments')}>
+            <div className="bg-surface-container-lowest rounded-xl shadow-card border border-surface-variant p-4 sm:p-5 cursor-pointer hover:border-secondary transition-colors" onClick={() => navigate('/appointments')}>
               <div className="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center mb-3">
                 <span className="material-symbols-outlined text-primary">event</span>
               </div>
               <h4 className="font-bold text-on-background">Today's Appointments</h4>
-              <p className="text-3xl font-bold text-primary mt-2">{stats.todaysAppointments}</p>
+              <p className="text-2xl sm:text-3xl font-bold text-primary mt-2">{stats.todaysAppointments}</p>
               <p className="text-xs text-on-surface-variant mt-1">
                 Next: {upcomingAppointments?.[0]?.time || '—'}
               </p>
             </div>
           </div>
 
-          <div className="bg-surface-container-lowest rounded-xl shadow-card border border-surface-variant overflow-hidden">
-            <div className="p-4 border-b border-surface-variant flex justify-between items-center">
-              <div>
+          <div className="order-1 bg-surface-container-lowest rounded-xl shadow-card border border-surface-variant overflow-hidden">
+            <div className="p-4 border-b border-surface-variant flex justify-between items-center gap-3">
+              <div className="min-w-0">
                 <h3 className="text-title-lg font-bold text-on-background">Upcoming Patients</h3>
                 <p className="text-xs text-on-surface-variant mt-0.5">{showAllAppts ? `Showing all ${upcomingAppointments?.length || 0} appointments — click icon to collapse` : 'Next appointments from your booking page'}</p>
               </div>
@@ -127,8 +128,8 @@ export default function Dashboard() {
             ) : (
               <ul className="divide-y divide-surface-variant">
                 {(showAllAppts ? upcomingAppointments : (upcomingAppointments || []).slice(0, 3)).map((a) => (
-                  <li key={a.id} className="p-4 flex items-center gap-4">
-                    <div className="flex flex-col items-center justify-center bg-primary-fixed text-primary rounded-lg w-16 h-14 flex-shrink-0">
+                  <li key={a.id} className="p-4 flex items-center gap-3 sm:gap-4">
+                    <div className="flex flex-col items-center justify-center bg-primary-fixed text-primary rounded-lg w-14 h-12 sm:w-16 sm:h-14 flex-shrink-0">
                       <span className="text-[10px] font-bold leading-none">{formatApptDay(a.date)}</span>
                       <span className="text-xs font-bold leading-tight mt-1">{a.time}</span>
                     </div>
@@ -148,7 +149,7 @@ export default function Dashboard() {
             )}
           </div>
 
-          <div className="bg-surface-container-lowest rounded-xl shadow-card border border-surface-variant p-6">
+          <div className="order-4 bg-surface-container-lowest rounded-xl shadow-card border border-surface-variant p-6">
             <div className="flex justify-between items-center mb-6">
               <div>
                 <h3 className="text-title-lg font-bold text-on-background">Revenue Trend</h3>
@@ -156,15 +157,15 @@ export default function Dashboard() {
               </div>
               <span className="text-sm bg-surface-container rounded-md px-3 py-1.5">This Year</span>
             </div>
-            <div className="flex items-end justify-between gap-3 h-56 border-l border-b border-surface-variant pl-2 pb-6 relative">
+            <div className="flex items-end justify-between gap-1 sm:gap-3 h-48 sm:h-56 border-l border-b border-surface-variant pl-1 sm:pl-2 pb-6 relative overflow-hidden">
               {revenueTrend.map((r, i) => (
-                <div key={r.month} className="flex-1 flex flex-col items-center justify-end h-full">
-                  <span className="text-xs text-on-surface-variant mb-1">₹{Math.round(r.value / 1000)}k</span>
+                <div key={r.month} className="flex-1 min-w-0 flex flex-col items-center justify-end h-full">
+                  <span className="text-[10px] sm:text-xs text-on-surface-variant mb-1 whitespace-nowrap">₹{Math.round(r.value / 1000)}k</span>
                   <div
                     className={`w-full max-w-[36px] rounded-t-sm ${i % 2 === 0 ? 'bg-primary' : 'bg-secondary'}`}
                     style={{ height: `${(r.value / maxRevenue) * 100}%`, opacity: 0.5 + (i / revenueTrend.length) * 0.5 }}
                   />
-                  <span className="text-xs text-on-surface-variant mt-2 absolute -bottom-0">{r.month}</span>
+                  <span className="text-[10px] sm:text-xs text-on-surface-variant mt-2 absolute -bottom-0">{r.month}</span>
                 </div>
               ))}
             </div>

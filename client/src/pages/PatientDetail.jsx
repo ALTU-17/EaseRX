@@ -79,7 +79,7 @@ export default function PatientDetail() {
       </Link>
 
       {/* Header card */}
-      <div className="bg-surface-container-lowest rounded-xl shadow-card border border-surface-variant p-6 flex flex-col sm:flex-row sm:items-center gap-5">
+      <div className="bg-surface-container-lowest rounded-xl shadow-card border border-surface-variant p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-5">
         <div className="w-16 h-16 rounded-full bg-primary-fixed text-primary flex items-center justify-center text-xl font-bold flex-shrink-0">
           {patient.name?.split(' ').map((w) => w[0]).slice(0, 2).join('')}
         </div>
@@ -89,17 +89,17 @@ export default function PatientDetail() {
             {patient.id} · {patient.gender || '—'} · {ageFromDob(patient.dob)}
           </p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-2 sm:gap-3">
           <button
             onClick={() => setEditing((s) => !s)}
-            className="inline-flex items-center gap-1 text-sm font-medium border border-outline-variant text-on-background rounded-lg px-4 py-2.5 hover:bg-surface-container transition-colors"
+            className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1 text-sm font-medium border border-outline-variant text-on-background rounded-lg px-4 py-2.5 hover:bg-surface-container transition-colors"
           >
             <span className="material-symbols-outlined text-[18px]">edit</span>
             Edit Info
           </button>
           <Link
             to="/rx"
-            className="inline-flex items-center gap-1 text-sm font-medium bg-primary text-on-primary rounded-lg px-4 py-2.5 hover:opacity-90 transition-opacity"
+            className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1 text-sm font-medium bg-primary text-on-primary rounded-lg px-4 py-2.5 hover:opacity-90 transition-opacity"
           >
             <span className="material-symbols-outlined text-[18px]">add</span>
             New Rx
@@ -107,7 +107,7 @@ export default function PatientDetail() {
           <button
             onClick={removePatient}
             title="Delete patient"
-            className="inline-flex items-center gap-1 text-sm font-medium border border-outline-variant text-error rounded-lg px-4 py-2.5 hover:bg-error-container transition-colors"
+            className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1 text-sm font-medium border border-outline-variant text-error rounded-lg px-4 py-2.5 hover:bg-error-container transition-colors"
           >
             <span className="material-symbols-outlined text-[18px]">delete</span>
             Delete
@@ -140,18 +140,18 @@ export default function PatientDetail() {
       )}
 
       {/* Quick stats */}
-      <div className="grid grid-cols-3 gap-4">
-        <div className="bg-surface-container-lowest rounded-xl shadow-card border border-surface-variant p-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+        <div className="bg-surface-container-lowest rounded-xl shadow-card border border-surface-variant p-4 flex items-center justify-between sm:block">
           <p className="text-label-md text-on-surface-variant">VISITS (RX)</p>
-          <p className="text-2xl font-bold text-primary mt-1">{prescriptions.length}</p>
+          <p className="text-xl sm:text-2xl font-bold text-primary mt-0 sm:mt-1">{prescriptions.length}</p>
         </div>
-        <div className="bg-surface-container-lowest rounded-xl shadow-card border border-surface-variant p-4">
+        <div className="bg-surface-container-lowest rounded-xl shadow-card border border-surface-variant p-4 flex items-center justify-between sm:block">
           <p className="text-label-md text-on-surface-variant">TOTAL BILLED</p>
-          <p className="text-2xl font-bold text-on-background mt-1">₹{totalBilled.toLocaleString()}</p>
+          <p className="text-xl sm:text-2xl font-bold text-on-background mt-0 sm:mt-1">₹{totalBilled.toLocaleString()}</p>
         </div>
-        <div className="bg-surface-container-lowest rounded-xl shadow-card border border-surface-variant p-4">
+        <div className="bg-surface-container-lowest rounded-xl shadow-card border border-surface-variant p-4 flex items-center justify-between sm:block">
           <p className="text-label-md text-on-surface-variant">OUTSTANDING</p>
-          <p className="text-2xl font-bold text-error mt-1">₹{outstanding.toLocaleString()}</p>
+          <p className="text-xl sm:text-2xl font-bold text-error mt-0 sm:mt-1">₹{outstanding.toLocaleString()}</p>
         </div>
       </div>
 

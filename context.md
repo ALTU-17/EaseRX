@@ -94,10 +94,12 @@ All responses use the envelope `{ success: true, data }` or `{ success: false, m
 **Add a new page/feature (e.g. "Reports"):**
 1. Create `client/src/pages/Reports.jsx`.
 2. Register route in `client/src/App.jsx` inside the `RequireAuth` block (public pages go above it).
-3. Add nav entry to `Sidebar.jsx` `NAV_ITEMS` (+ `BottomNav.jsx` if mobile).
+3. Add nav entry to `client/src/navItems.js` (`NAV_ITEMS`, and `BOTTOM_ITEMS` only if it belongs in the 5 phone tabs). Sidebar, the phone drawer and the bottom bar all read that one file.
 4. Add title/subtitle to `Layout.jsx` `TITLES` map.
 5. Add API wrapper in `client/src/api.js`, then endpoint in `server/index.js` (+ data in `server/data.js`).
 6. Update the Feature → File Map above.
+
+**Mobile / responsive rules:** desktop-first markup that collapses downward, with the breakpoints `sm` 640 (single→multi column, card lists→tables), `lg` 1024 (Prescriptions side-by-side instead of the full-screen sheet), `md` 768 (sidebar + drawer boundary). Always give new screens: a phone-first stacked layout, ≥44px touch targets (`py-2.5`+), `truncate`/`break-words` on user text, and **no fixed widths** outside an `overflow-x-auto` wrapper. Fields must stay ≥16px on phones (see `index.css`) or iOS Safari zooms on focus. The phone bottom bar is 5 tabs + the header hamburger (`MobileDrawer.jsx`) — do not add a 6th tab. Content needs `pb-28` (`Layout.jsx` `main`) to clear the bottom bar.
 
 **Style:** Tailwind utility classes with custom tokens (`bg-surface-container-lowest`, `text-on-surface-variant`, `text-title-lg`, `shadow-card` — see `tailwind.config.js`). Icons: `<span className="material-symbols-outlined">icon_name</span>`. Cards: rounded-xl + shadow-card + border-surface-variant.
 

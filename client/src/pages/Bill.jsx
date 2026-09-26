@@ -52,10 +52,10 @@ export default function Bill() {
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-end">
+      <div className="flex sm:justify-end">
         <button
           onClick={() => setShowForm((s) => !s)}
-          className="inline-flex items-center gap-1 text-sm font-medium bg-primary text-on-primary rounded-lg px-4 py-2.5 hover:opacity-90 transition-opacity"
+          className="w-full sm:w-auto inline-flex items-center justify-center gap-1 text-sm font-medium bg-primary text-on-primary rounded-lg px-4 py-2.5 hover:opacity-90 transition-opacity"
         >
           <span className="material-symbols-outlined text-[18px]">add</span>
           New Invoice
@@ -73,12 +73,12 @@ export default function Bill() {
           />
           <div className="space-y-3">
             {items.map((item, i) => (
-              <div key={i} className="flex gap-3 items-center">
+              <div key={i} className="flex flex-wrap gap-2 sm:gap-3 sm:items-center">
                 <input
                   placeholder="Item description (e.g. Consultation)"
                   value={item.label}
                   onChange={(e) => updateItem(i, 'label', e.target.value)}
-                  className="flex-1 bg-surface-container-low border border-surface-variant rounded-lg px-3 py-2.5 text-sm outline-none focus:border-secondary"
+                  className="w-full sm:w-auto sm:flex-1 bg-surface-container-low border border-surface-variant rounded-lg px-3 py-2.5 text-sm outline-none focus:border-secondary"
                 />
                 <input
                   type="number"
@@ -86,7 +86,7 @@ export default function Bill() {
                   placeholder="₹"
                   value={item.amount}
                   onChange={(e) => updateItem(i, 'amount', e.target.value)}
-                  className="w-28 bg-surface-container-low border border-surface-variant rounded-lg px-3 py-2.5 text-sm outline-none focus:border-secondary"
+                  className="flex-1 sm:flex-none sm:w-28 bg-surface-container-low border border-surface-variant rounded-lg px-3 py-2.5 text-sm outline-none focus:border-secondary"
                 />
                 {items.length > 1 && (
                   <button
@@ -101,21 +101,21 @@ export default function Bill() {
               </div>
             ))}
           </div>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <button
               type="button"
               onClick={() => setItems((list) => [...list, { ...emptyItem }])}
-              className="inline-flex items-center gap-1 text-sm font-bold text-secondary hover:underline"
+              className="inline-flex items-center gap-1 text-sm font-bold text-secondary hover:underline self-start"
             >
               <span className="material-symbols-outlined text-[18px]">add</span>
               Add item
             </button>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center justify-between sm:justify-end gap-4">
               <span className="text-sm font-bold text-on-background">Total: ₹{total}</span>
               <button
                 type="submit"
                 disabled={saving}
-                className="bg-primary text-on-primary text-sm font-bold rounded-lg px-5 py-2.5 hover:opacity-90 disabled:opacity-60"
+                className="bg-primary text-on-primary text-sm font-bold rounded-lg px-5 py-3 sm:py-2.5 hover:opacity-90 disabled:opacity-60"
               >
                 {saving ? 'Saving…' : 'Create Invoice'}
               </button>
@@ -142,14 +142,14 @@ export default function Bill() {
           className="bg-surface-container-lowest rounded-xl shadow-card border border-surface-variant p-5 cursor-pointer hover:border-secondary transition-colors"
           title="Open invoice"
         >
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-bold text-on-background">{b.patientName}</p>
-              <p className="text-xs text-on-surface-variant">
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <p className="font-bold text-on-background truncate">{b.patientName}</p>
+              <p className="text-xs text-on-surface-variant truncate">
                 {b.id} • {new Date(b.date).toLocaleDateString()}
               </p>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
               <span
                 className={`text-xs font-bold px-3 py-1 rounded-full ${
                   b.status === 'paid'

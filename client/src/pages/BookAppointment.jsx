@@ -248,7 +248,7 @@ export default function BookAppointment() {
         @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1');
         @import url('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
         
-        .erx-book { font-family: 'Plus Jakarta Sans', sans-serif; color: ${COLORS.onBg}; background: ${COLORS.bg}; min-height: 100vh; }
+        .erx-book { font-family: 'Plus Jakarta Sans', sans-serif; color: ${COLORS.onBg}; background: ${COLORS.bg}; min-height: 100vh; min-height: 100dvh; }
         .erx-book * { box-sizing: border-box; }
         .erx-book .erx-icon { font-family: 'Material Symbols Outlined'; font-weight: normal; font-style: normal; line-height: 1; -webkit-font-smoothing: antialiased; }
         .erx-book .erx-wrap { max-width: 640px; margin: 0 auto; padding: 32px 20px 80px; }
@@ -269,6 +269,28 @@ export default function BookAppointment() {
         .erx-book .erx-btn-outline:hover { background: ${COLORS.primary}; color: #fff; }
         .erx-book .erx-btn-secondary { width: 100%; text-align: center; display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: ${COLORS.secondary}; color: #fff; font-weight: 700; font-size: 14px; border: none; border-radius: 12px; padding: 13px; cursor: pointer; transition: all 0.3s; }
         .erx-book .erx-btn-secondary:hover { background: ${COLORS.primary}; }
+
+        /* Phones: this page is opened by patients on their own devices. */
+        @media (max-width: 640px) {
+          .erx-book .erx-wrap { padding: 20px 14px 100px; }
+          .erx-book .erx-card { padding: 18px; border-radius: 16px; }
+          /* >= 16px stops iOS Safari from zooming the page on field focus. */
+          .erx-book input, .erx-book select, .erx-book textarea { font-size: 16px; }
+          .erx-book .erx-slot { padding: 12px 4px; font-size: 12px; }
+          .erx-book .erx-pill { font-size: 12.5px; }
+          /* Keep the primary action reachable without scrolling to the end. */
+          .erx-book .erx-sticky-cta {
+            position: sticky;
+            bottom: 0;
+            z-index: 5;
+            padding: 10px 0 6px;
+            background: linear-gradient(to top, rgba(247,249,251,.98) 55%, rgba(247,249,251,0));
+          }
+
+          .erx-book .erx-sticky-cta .erx-btn {
+            box-shadow: 0 10px 30px rgba(19,35,89,.22);
+          }
+        }
       `}</style>
 
       <div className="erx-wrap">
@@ -425,10 +447,12 @@ export default function BookAppointment() {
               </p>
             )}
  
-            <button type="submit" className="erx-btn" disabled={submitting}>
-              {submitting ? 'Booking…' : 'Book Appointment'}
-              {!submitting && <span className="erx-icon" style={{ fontSize: 18 }}>arrow_forward</span>}
-            </button>
+            <div className="erx-sticky-cta">
+              <button type="submit" className="erx-btn" disabled={submitting}>
+                {submitting ? 'Booking…' : 'Book Appointment'}
+                {!submitting && <span className="erx-icon" style={{ fontSize: 18 }}>arrow_forward</span>}
+              </button>
+            </div>
           </form>
         )}
       </div>
