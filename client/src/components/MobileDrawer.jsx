@@ -82,7 +82,7 @@ export default function MobileDrawer({ open, onClose, onLogout }) {
           <button
             type="button"
             onClick={onLogout}
-            className="flex items-center gap-2 w-full text-sm font-medium text-on-surface-variant hover:text-error transition-colors px-1 py-2"
+            className="flex items-center justify-center gap-2 w-full text-sm font-semibold text-error bg-error-container rounded-xl px-4 py-3 hover:bg-error/10 active:opacity-90 transition-all"
           >
             <span className="material-symbols-outlined text-[20px]">exit_to_app</span>
             Logout

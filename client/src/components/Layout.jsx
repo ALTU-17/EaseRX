@@ -45,7 +45,7 @@ export default function Layout({ user, onLogout }) {
       <div className="md:pl-64">
         <header className="sticky top-0 z-40 bg-surface-container-lowest border-b border-surface-variant">
           <div className="flex items-center justify-between gap-2 px-3 sm:px-4 md:px-8 h-14 sm:h-16">
-            <div className="md:hidden flex items-center gap-2 min-w-0">
+            <div className="md:hidden flex items-center gap-2 min-w-0 flex-1">
               <button
                 type="button"
                 onClick={() => setDrawerOpen(true)}
@@ -58,7 +58,7 @@ export default function Layout({ user, onLogout }) {
               <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-on-primary font-bold text-sm flex-shrink-0">
                 🦷
               </div>
-              <span className="font-bold text-on-background truncate max-w-[30vw]">{clinicName}</span>
+              <span className="font-bold text-[15px] text-on-background truncate">{clinicName}</span>
             </div>
 
             <div className="hidden md:flex md:flex-col md:leading-tight">
@@ -90,17 +90,18 @@ export default function Layout({ user, onLogout }) {
                 🦷 New Prescription
               </button>
               <button
-                onClick={onLogout}
-                className="md:hidden w-9 h-9 rounded-lg flex items-center justify-center text-on-surface-variant active:bg-surface-container"
-                aria-label="Logout"
+                type="button"
+                onClick={() => navigate('/settings')}
+                aria-label="Open profile settings"
+                title="Profile settings"
+                className="rounded-full ring-primary/0 hover:ring-2 hover:ring-primary/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary active:opacity-80 transition-all flex-shrink-0"
               >
-                <span className="material-symbols-outlined">exit_to_app</span>
+                <img
+                  src={user?.avatar || 'https://i.pravatar.cc/100'}
+                  alt={user?.name || 'Doctor avatar'}
+                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-full object-cover border border-surface-variant block"
+                />
               </button>
-              <img
-                src={user?.avatar || 'https://i.pravatar.cc/100'}
-                alt={user?.name || 'Doctor avatar'}
-                className="w-8 h-8 sm:w-9 sm:h-9 rounded-full object-cover border border-surface-variant"
-              />
             </div>
           </div>
         </header>
